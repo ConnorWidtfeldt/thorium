@@ -89,6 +89,11 @@ class Events extends EventEmitter {
   httpOnly: boolean = false;
   port: number = process.env.NODE_ENV === "production" ? 4444 : 3001;
 
+  // osc
+  oscDictionaries: ClassesImport.OSC.OscDictionary[] = [
+    ClassesImport.OSC.dictionaries.QLab,
+  ];
+
   events: any[] = [];
   mutations: {[key: string]: Function} = {};
   replaying = false;
