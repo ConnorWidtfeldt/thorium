@@ -1,0 +1,8 @@
+subscription OscDevices {
+  oscDevices {
+    id
+    name
+    host
+    port
+  }
+}

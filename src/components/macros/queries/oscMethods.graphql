@@ -1,0 +1,11 @@
+query OscMethods {
+  oscDictionaries {
+    id
+    name
+    description
+    methods {
+      id
+      name
+    }
+  }
+}

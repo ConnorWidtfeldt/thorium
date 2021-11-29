@@ -37,7 +37,7 @@ function addWindow({main, x, y, loadedUrl, server}) {
     kiosk: false,
     webPreferences: {
       contextIsolation: true,
-      nodeIntegration: false,
+      nodeIntegration: true,
       sandbox: true,
     },
   };

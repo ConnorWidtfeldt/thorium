@@ -1,0 +1,3 @@
+query OscMethodValidation($id: ID!, $args: JSON!) {
+  oscMethodValidation(id: $id, args: $args)
+}

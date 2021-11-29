@@ -88,7 +88,7 @@ class Events extends EventEmitter {
   googleSheetsTokens: any = {};
   httpOnly: boolean = false;
   port: number = process.env.NODE_ENV === "production" ? 4444 : 3001;
-
+  oscDevices: ClassesImport.OscDevice[] = [];
   events: any[] = [];
   mutations: {[key: string]: Function} = {};
   replaying = false;

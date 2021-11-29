@@ -5,6 +5,7 @@
     "allowJs": true,
     "allowSyntheticDefaultImports": true,
     "target": "es6",
+    "lib": ["es2019"],
     "skipLibCheck": true,
 
     // TODO: Turn this on when we get enough coverage

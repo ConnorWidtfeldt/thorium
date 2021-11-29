@@ -21,6 +21,7 @@ import {
   Records,
   Midi,
   DMX,
+  OSC,
 } from "./FlightDirector";
 import MissionPicker from "./missionPicker";
 import SimulatorPicker from "./simulatorPicker";
@@ -118,6 +119,7 @@ const Config = () => {
           <Route path="midi" element={<Midi />} />
           <Route path="dmx/*" element={<DMX />} />
           <Route path="debug" element={<DebugList />} />
+          <Route path="osc/*" element={<OSC />} />
         </Routes>
       </div>
       <AlertsHolder alerts={alerts} dismiss={onDismiss} />

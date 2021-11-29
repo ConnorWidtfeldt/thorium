@@ -6,6 +6,13 @@
     background-color: #111;
     background-size: cover;
     color: white;
+    display: flex;
+    flex-direction: column;
+    .config-body {
+      flex-grow: 1;
+      max-height: 100%;
+      overflow: hidden;
+    }
     table {
       color: white;
     }
