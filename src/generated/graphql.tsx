@@ -140,6 +140,8 @@ export type Query = {
   dmxConfig?: Maybe<DmxConfig>;
   dmxConfigs: Array<DmxConfig>;
   taskFlows: Array<TaskFlow>;
+  oscDictionaries?: Maybe<Array<Maybe<OscDictionary>>>;
+  oscDictionary?: Maybe<OscDictionary>;
 };
 
 
@@ -690,9 +692,37 @@ export type QueryTaskFlowsArgs = {
   simulatorId?: Maybe<Scalars['ID']>;
 };
 
+
+export type QueryOscDictionaryArgs = {
+  id?: Maybe<Scalars['String']>;
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   _empty?: Maybe<Scalars['String']>;
+  entitySetAppearance?: Maybe<Scalars['String']>;
+  entityRemoveAppearance?: Maybe<Scalars['String']>;
+  entitySetBehavior?: Maybe<Scalars['String']>;
+  entityRemoveBehavior?: Maybe<Scalars['String']>;
+  entitySetIdentity?: Maybe<Scalars['String']>;
+  entityRemoveIdentity?: Maybe<Scalars['String']>;
+  entitySetLocation?: Maybe<Scalars['String']>;
+  entitiesSetPosition?: Maybe<Scalars['String']>;
+  entitySetRotationVelocityMagnitude?: Maybe<Scalars['String']>;
+  entityRemoveLocation?: Maybe<Scalars['String']>;
+  entitySetStage?: Maybe<Scalars['String']>;
+  entityRemoveStage?: Maybe<Scalars['String']>;
+  entitySetStageChild?: Maybe<Scalars['String']>;
+  entityRemoveStageChild?: Maybe<Scalars['String']>;
+  entitySetLight?: Maybe<Scalars['String']>;
+  entityRemoveLight?: Maybe<Scalars['String']>;
+  entitySetGlow?: Maybe<Scalars['String']>;
+  entityRemoveGlow?: Maybe<Scalars['String']>;
+  entitySetTemplate?: Maybe<Scalars['String']>;
+  entitySetEngine?: Maybe<Scalars['String']>;
+  entityRemoveEngine?: Maybe<Scalars['String']>;
+  entitySetThrusters?: Maybe<Scalars['String']>;
+  entityRemoveThrusters?: Maybe<Scalars['String']>;
   /** Macro: Actions: Trigger Action (eg. Flash, Blackout, etc.) */
   triggerAction?: Maybe<Scalars['String']>;
   addSimulatorAmbiance?: Maybe<Scalars['String']>;
@@ -1747,29 +1777,164 @@ export type Mutation = {
   /** Macro: Tasks: Activate Task Flow */
   taskFlowActivate?: Maybe<Scalars['String']>;
   taskFlowAdvance?: Maybe<Scalars['String']>;
-  entitySetAppearance?: Maybe<Scalars['String']>;
-  entityRemoveAppearance?: Maybe<Scalars['String']>;
-  entitySetBehavior?: Maybe<Scalars['String']>;
-  entityRemoveBehavior?: Maybe<Scalars['String']>;
-  entitySetIdentity?: Maybe<Scalars['String']>;
-  entityRemoveIdentity?: Maybe<Scalars['String']>;
-  entitySetLocation?: Maybe<Scalars['String']>;
-  entitiesSetPosition?: Maybe<Scalars['String']>;
-  entitySetRotationVelocityMagnitude?: Maybe<Scalars['String']>;
-  entityRemoveLocation?: Maybe<Scalars['String']>;
-  entitySetStage?: Maybe<Scalars['String']>;
-  entityRemoveStage?: Maybe<Scalars['String']>;
-  entitySetStageChild?: Maybe<Scalars['String']>;
-  entityRemoveStageChild?: Maybe<Scalars['String']>;
-  entitySetLight?: Maybe<Scalars['String']>;
-  entityRemoveLight?: Maybe<Scalars['String']>;
-  entitySetGlow?: Maybe<Scalars['String']>;
-  entityRemoveGlow?: Maybe<Scalars['String']>;
-  entitySetTemplate?: Maybe<Scalars['String']>;
-  entitySetEngine?: Maybe<Scalars['String']>;
-  entityRemoveEngine?: Maybe<Scalars['String']>;
-  entitySetThrusters?: Maybe<Scalars['String']>;
-  entityRemoveThrusters?: Maybe<Scalars['String']>;
+};
+
+
+export type MutationEntitySetAppearanceArgs = {
+  id?: Maybe<Scalars['ID']>;
+  color?: Maybe<Scalars['String']>;
+  meshType?: Maybe<MeshTypeEnum>;
+  modelAsset?: Maybe<Scalars['String']>;
+  materialMapAsset?: Maybe<Scalars['String']>;
+  ringMapAsset?: Maybe<Scalars['String']>;
+  cloudMapAsset?: Maybe<Scalars['String']>;
+  emissiveColor?: Maybe<Scalars['String']>;
+  emissiveIntensity?: Maybe<Scalars['Float']>;
+  scale?: Maybe<Scalars['Float']>;
+};
+
+
+export type MutationEntityRemoveAppearanceArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationEntitySetBehaviorArgs = {
+  id: Scalars['ID'];
+  behavior: Behaviors;
+  targetId?: Maybe<Scalars['ID']>;
+  destination?: Maybe<EntityCoordinatesInput>;
+};
+
+
+export type MutationEntityRemoveBehaviorArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationEntitySetIdentityArgs = {
+  id?: Maybe<Scalars['ID']>;
+  name?: Maybe<Scalars['String']>;
+  type?: Maybe<Scalars['String']>;
+};
+
+
+export type MutationEntityRemoveIdentityArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationEntitySetLocationArgs = {
+  id?: Maybe<Scalars['ID']>;
+  position?: Maybe<EntityCoordinatesInput>;
+  velocity?: Maybe<EntityCoordinatesInput>;
+  acceleration?: Maybe<EntityCoordinatesInput>;
+  rotation?: Maybe<QuaternionInput>;
+  rotationVelocity?: Maybe<EntityCoordinatesInput>;
+  rotationAcceleration?: Maybe<EntityCoordinatesInput>;
+};
+
+
+export type MutationEntitiesSetPositionArgs = {
+  entities: Array<EntitiesLocationInput>;
+};
+
+
+export type MutationEntitySetRotationVelocityMagnitudeArgs = {
+  id: Scalars['ID'];
+  rotationVelocity: CoordinatesInput;
+};
+
+
+export type MutationEntityRemoveLocationArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationEntitySetStageArgs = {
+  id?: Maybe<Scalars['ID']>;
+  scaleLabel?: Maybe<Scalars['String']>;
+  scaleLabelShort?: Maybe<Scalars['String']>;
+  skyboxKey?: Maybe<Scalars['String']>;
+};
+
+
+export type MutationEntityRemoveStageArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationEntitySetStageChildArgs = {
+  id?: Maybe<Scalars['ID']>;
+  parentId: Scalars['ID'];
+};
+
+
+export type MutationEntityRemoveStageChildArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationEntitySetLightArgs = {
+  id?: Maybe<Scalars['ID']>;
+  intensity?: Maybe<Scalars['Float']>;
+  decay?: Maybe<Scalars['Float']>;
+  color?: Maybe<Scalars['String']>;
+};
+
+
+export type MutationEntityRemoveLightArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationEntitySetGlowArgs = {
+  id?: Maybe<Scalars['ID']>;
+  glowMode?: Maybe<GlowModeEnum>;
+  color?: Maybe<Scalars['String']>;
+};
+
+
+export type MutationEntityRemoveGlowArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationEntitySetTemplateArgs = {
+  id?: Maybe<Scalars['ID']>;
+  category: Scalars['String'];
+};
+
+
+export type MutationEntitySetEngineArgs = {
+  id?: Maybe<Scalars['ID']>;
+  type: EntityEngineEnum;
+  maxSpeed?: Maybe<Scalars['Float']>;
+  currentSpeed?: Maybe<Scalars['Float']>;
+  heat?: Maybe<Scalars['Float']>;
+  heatRate?: Maybe<Scalars['Float']>;
+  coolant?: Maybe<Scalars['Float']>;
+  cooling?: Maybe<Scalars['Boolean']>;
+};
+
+
+export type MutationEntityRemoveEngineArgs = {
+  id: Scalars['ID'];
+  type: EntityEngineEnum;
+};
+
+
+export type MutationEntitySetThrustersArgs = {
+  id: Scalars['ID'];
+  direction?: Maybe<CoordinatesInput>;
+  rotationDelta?: Maybe<CoordinatesInput>;
+  rotationSpeed?: Maybe<Scalars['Float']>;
+  movementSpeed?: Maybe<Scalars['Float']>;
+};
+
+
+export type MutationEntityRemoveThrustersArgs = {
+  id: Scalars['ID'];
 };
 
 
@@ -6373,164 +6538,6 @@ export type MutationTaskFlowAdvanceArgs = {
   simulatorId: Scalars['ID'];
 };
 
-
-export type MutationEntitySetAppearanceArgs = {
-  id?: Maybe<Scalars['ID']>;
-  color?: Maybe<Scalars['String']>;
-  meshType?: Maybe<MeshTypeEnum>;
-  modelAsset?: Maybe<Scalars['String']>;
-  materialMapAsset?: Maybe<Scalars['String']>;
-  ringMapAsset?: Maybe<Scalars['String']>;
-  cloudMapAsset?: Maybe<Scalars['String']>;
-  emissiveColor?: Maybe<Scalars['String']>;
-  emissiveIntensity?: Maybe<Scalars['Float']>;
-  scale?: Maybe<Scalars['Float']>;
-};
-
-
-export type MutationEntityRemoveAppearanceArgs = {
-  id: Scalars['ID'];
-};
-
-
-export type MutationEntitySetBehaviorArgs = {
-  id: Scalars['ID'];
-  behavior: Behaviors;
-  targetId?: Maybe<Scalars['ID']>;
-  destination?: Maybe<EntityCoordinatesInput>;
-};
-
-
-export type MutationEntityRemoveBehaviorArgs = {
-  id: Scalars['ID'];
-};
-
-
-export type MutationEntitySetIdentityArgs = {
-  id?: Maybe<Scalars['ID']>;
-  name?: Maybe<Scalars['String']>;
-  type?: Maybe<Scalars['String']>;
-};
-
-
-export type MutationEntityRemoveIdentityArgs = {
-  id: Scalars['ID'];
-};
-
-
-export type MutationEntitySetLocationArgs = {
-  id?: Maybe<Scalars['ID']>;
-  position?: Maybe<EntityCoordinatesInput>;
-  velocity?: Maybe<EntityCoordinatesInput>;
-  acceleration?: Maybe<EntityCoordinatesInput>;
-  rotation?: Maybe<QuaternionInput>;
-  rotationVelocity?: Maybe<EntityCoordinatesInput>;
-  rotationAcceleration?: Maybe<EntityCoordinatesInput>;
-};
-
-
-export type MutationEntitiesSetPositionArgs = {
-  entities: Array<EntitiesLocationInput>;
-};
-
-
-export type MutationEntitySetRotationVelocityMagnitudeArgs = {
-  id: Scalars['ID'];
-  rotationVelocity: CoordinatesInput;
-};
-
-
-export type MutationEntityRemoveLocationArgs = {
-  id: Scalars['ID'];
-};
-
-
-export type MutationEntitySetStageArgs = {
-  id?: Maybe<Scalars['ID']>;
-  scaleLabel?: Maybe<Scalars['String']>;
-  scaleLabelShort?: Maybe<Scalars['String']>;
-  skyboxKey?: Maybe<Scalars['String']>;
-};
-
-
-export type MutationEntityRemoveStageArgs = {
-  id: Scalars['ID'];
-};
-
-
-export type MutationEntitySetStageChildArgs = {
-  id?: Maybe<Scalars['ID']>;
-  parentId: Scalars['ID'];
-};
-
-
-export type MutationEntityRemoveStageChildArgs = {
-  id: Scalars['ID'];
-};
-
-
-export type MutationEntitySetLightArgs = {
-  id?: Maybe<Scalars['ID']>;
-  intensity?: Maybe<Scalars['Float']>;
-  decay?: Maybe<Scalars['Float']>;
-  color?: Maybe<Scalars['String']>;
-};
-
-
-export type MutationEntityRemoveLightArgs = {
-  id: Scalars['ID'];
-};
-
-
-export type MutationEntitySetGlowArgs = {
-  id?: Maybe<Scalars['ID']>;
-  glowMode?: Maybe<GlowModeEnum>;
-  color?: Maybe<Scalars['String']>;
-};
-
-
-export type MutationEntityRemoveGlowArgs = {
-  id: Scalars['ID'];
-};
-
-
-export type MutationEntitySetTemplateArgs = {
-  id?: Maybe<Scalars['ID']>;
-  category: Scalars['String'];
-};
-
-
-export type MutationEntitySetEngineArgs = {
-  id?: Maybe<Scalars['ID']>;
-  type: EntityEngineEnum;
-  maxSpeed?: Maybe<Scalars['Float']>;
-  currentSpeed?: Maybe<Scalars['Float']>;
-  heat?: Maybe<Scalars['Float']>;
-  heatRate?: Maybe<Scalars['Float']>;
-  coolant?: Maybe<Scalars['Float']>;
-  cooling?: Maybe<Scalars['Boolean']>;
-};
-
-
-export type MutationEntityRemoveEngineArgs = {
-  id: Scalars['ID'];
-  type: EntityEngineEnum;
-};
-
-
-export type MutationEntitySetThrustersArgs = {
-  id: Scalars['ID'];
-  direction?: Maybe<CoordinatesInput>;
-  rotationDelta?: Maybe<CoordinatesInput>;
-  rotationSpeed?: Maybe<Scalars['Float']>;
-  movementSpeed?: Maybe<Scalars['Float']>;
-};
-
-
-export type MutationEntityRemoveThrustersArgs = {
-  id: Scalars['ID'];
-};
-
 export type Subscription = {
   __typename?: 'Subscription';
   _empty?: Maybe<Scalars['String']>;
@@ -7176,6 +7183,154 @@ export type SubscriptionDmxFixturesArgs = {
 
 export type SubscriptionTaskFlowsArgs = {
   simulatorId?: Maybe<Scalars['ID']>;
+};
+
+export enum MeshTypeEnum {
+  Sphere = 'sphere',
+  Cube = 'cube',
+  Model = 'model',
+  Sprite = 'sprite',
+  Planet = 'planet',
+  Star = 'star'
+}
+
+export type AppearanceComponent = {
+  __typename?: 'AppearanceComponent';
+  meshType?: Maybe<MeshTypeEnum>;
+  modelAsset?: Maybe<Scalars['String']>;
+  materialMapAsset?: Maybe<Scalars['String']>;
+  ringMapAsset?: Maybe<Scalars['String']>;
+  cloudMapAsset?: Maybe<Scalars['String']>;
+  emissiveColor?: Maybe<Scalars['String']>;
+  emissiveIntensity?: Maybe<Scalars['Float']>;
+  color?: Maybe<Scalars['String']>;
+  scale?: Maybe<Scalars['Float']>;
+};
+
+export enum Behaviors {
+  HoldPosition = 'holdPosition',
+  Wander = 'wander',
+  Follow = 'follow',
+  Avoid = 'avoid',
+  Attack = 'attack'
+}
+
+export type BehaviorComponent = {
+  __typename?: 'BehaviorComponent';
+  behavior: Behaviors;
+  targetId?: Maybe<Scalars['ID']>;
+  destination?: Maybe<EntityCoordinates>;
+};
+
+export type IdentityComponent = {
+  __typename?: 'IdentityComponent';
+  name?: Maybe<Scalars['String']>;
+  type?: Maybe<Scalars['String']>;
+};
+
+export type Quaternion = {
+  __typename?: 'Quaternion';
+  x: Scalars['Float'];
+  y: Scalars['Float'];
+  z: Scalars['Float'];
+  w: Scalars['Float'];
+};
+
+export type QuaternionInput = {
+  x: Scalars['Float'];
+  y: Scalars['Float'];
+  z: Scalars['Float'];
+  w: Scalars['Float'];
+};
+
+export type EntityCoordinates = {
+  __typename?: 'EntityCoordinates';
+  x: Scalars['Float'];
+  y: Scalars['Float'];
+  z: Scalars['Float'];
+};
+
+export type EntityCoordinatesInput = {
+  x: Scalars['Float'];
+  y: Scalars['Float'];
+  z: Scalars['Float'];
+};
+
+export type LocationComponent = {
+  __typename?: 'LocationComponent';
+  inert: Scalars['Boolean'];
+  position: EntityCoordinates;
+  velocity: EntityCoordinates;
+  acceleration: EntityCoordinates;
+  rotation: Quaternion;
+  rotationVelocity: EntityCoordinates;
+  rotationAcceleration: EntityCoordinates;
+};
+
+export type EntitiesLocationInput = {
+  id: Scalars['ID'];
+  position: EntityCoordinatesInput;
+};
+
+export type StageComponent = {
+  __typename?: 'StageComponent';
+  scaleLabel?: Maybe<Scalars['String']>;
+  scaleLabelShort?: Maybe<Scalars['String']>;
+  skyboxKey?: Maybe<Scalars['String']>;
+  childrenAsSprites?: Maybe<Scalars['Boolean']>;
+};
+
+export type StageChildComponent = {
+  __typename?: 'StageChildComponent';
+  parentId: Scalars['ID'];
+  parent?: Maybe<Entity>;
+};
+
+export type LightComponent = {
+  __typename?: 'LightComponent';
+  intensity?: Maybe<Scalars['Float']>;
+  decay?: Maybe<Scalars['Float']>;
+  color?: Maybe<Scalars['String']>;
+};
+
+export enum GlowModeEnum {
+  Glow = 'glow',
+  Halo = 'halo',
+  Shell = 'shell'
+}
+
+export type GlowComponent = {
+  __typename?: 'GlowComponent';
+  glowMode?: Maybe<GlowModeEnum>;
+  color?: Maybe<Scalars['String']>;
+};
+
+export type TemplateComponent = {
+  __typename?: 'TemplateComponent';
+  category?: Maybe<Scalars['String']>;
+};
+
+export type EngineComponent = {
+  __typename?: 'EngineComponent';
+  maxSpeed?: Maybe<Scalars['Float']>;
+  currentSpeed?: Maybe<Scalars['Float']>;
+  heat?: Maybe<Scalars['Float']>;
+  heatRate?: Maybe<Scalars['Float']>;
+  coolant?: Maybe<Scalars['Float']>;
+  cooling?: Maybe<Scalars['Boolean']>;
+};
+
+export enum EntityEngineEnum {
+  Warp = 'warp',
+  Impulse = 'impulse'
+}
+
+export type ThrustersComponent = {
+  __typename?: 'ThrustersComponent';
+  direction?: Maybe<Coordinates>;
+  rotationDelta?: Maybe<Coordinates>;
+  rotationSpeed?: Maybe<Scalars['Float']>;
+  movementSpeed?: Maybe<Scalars['Float']>;
 };
 
 export type Action = {
@@ -10602,152 +10757,44 @@ export type TaskFlow = {
   completed: Scalars['Boolean'];
 };
 
-export enum MeshTypeEnum {
-  Sphere = 'sphere',
-  Cube = 'cube',
-  Model = 'model',
-  Sprite = 'sprite',
-  Planet = 'planet',
-  Star = 'star'
-}
-
-export type AppearanceComponent = {
-  __typename?: 'AppearanceComponent';
-  meshType?: Maybe<MeshTypeEnum>;
-  modelAsset?: Maybe<Scalars['String']>;
-  materialMapAsset?: Maybe<Scalars['String']>;
-  ringMapAsset?: Maybe<Scalars['String']>;
-  cloudMapAsset?: Maybe<Scalars['String']>;
-  emissiveColor?: Maybe<Scalars['String']>;
-  emissiveIntensity?: Maybe<Scalars['Float']>;
-  color?: Maybe<Scalars['String']>;
-  scale?: Maybe<Scalars['Float']>;
-};
-
-export enum Behaviors {
-  HoldPosition = 'holdPosition',
-  Wander = 'wander',
-  Follow = 'follow',
-  Avoid = 'avoid',
-  Attack = 'attack'
-}
-
-export type BehaviorComponent = {
-  __typename?: 'BehaviorComponent';
-  behavior: Behaviors;
-  targetId?: Maybe<Scalars['ID']>;
-  destination?: Maybe<EntityCoordinates>;
-};
-
-export type IdentityComponent = {
-  __typename?: 'IdentityComponent';
+export type OscDictionary = {
+  __typename?: 'OscDictionary';
+  id?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
-  type?: Maybe<Scalars['String']>;
+  methods?: Maybe<Array<Maybe<OscMethod>>>;
 };
 
-export type Quaternion = {
-  __typename?: 'Quaternion';
-  x: Scalars['Float'];
-  y: Scalars['Float'];
-  z: Scalars['Float'];
-  w: Scalars['Float'];
+export type OscMethod = {
+  __typename?: 'OscMethod';
+  id?: Maybe<Scalars['String']>;
+  name?: Maybe<Scalars['String']>;
+  description?: Maybe<Scalars['String']>;
+  args?: Maybe<Array<Maybe<OscArg>>>;
 };
 
-export type QuaternionInput = {
-  x: Scalars['Float'];
-  y: Scalars['Float'];
-  z: Scalars['Float'];
-  w: Scalars['Float'];
-};
-
-export type EntityCoordinates = {
-  __typename?: 'EntityCoordinates';
-  x: Scalars['Float'];
-  y: Scalars['Float'];
-  z: Scalars['Float'];
-};
-
-export type EntityCoordinatesInput = {
-  x: Scalars['Float'];
-  y: Scalars['Float'];
-  z: Scalars['Float'];
-};
-
-export type LocationComponent = {
-  __typename?: 'LocationComponent';
-  inert: Scalars['Boolean'];
-  position: EntityCoordinates;
-  velocity: EntityCoordinates;
-  acceleration: EntityCoordinates;
-  rotation: Quaternion;
-  rotationVelocity: EntityCoordinates;
-  rotationAcceleration: EntityCoordinates;
-};
-
-export type EntitiesLocationInput = {
-  id: Scalars['ID'];
-  position: EntityCoordinatesInput;
-};
-
-export type StageComponent = {
-  __typename?: 'StageComponent';
-  scaleLabel?: Maybe<Scalars['String']>;
-  scaleLabelShort?: Maybe<Scalars['String']>;
-  skyboxKey?: Maybe<Scalars['String']>;
-  childrenAsSprites?: Maybe<Scalars['Boolean']>;
-};
-
-export type StageChildComponent = {
-  __typename?: 'StageChildComponent';
-  parentId: Scalars['ID'];
-  parent?: Maybe<Entity>;
-};
-
-export type LightComponent = {
-  __typename?: 'LightComponent';
-  intensity?: Maybe<Scalars['Float']>;
-  decay?: Maybe<Scalars['Float']>;
-  color?: Maybe<Scalars['String']>;
-};
-
-export enum GlowModeEnum {
-  Glow = 'glow',
-  Halo = 'halo',
-  Shell = 'shell'
+export enum OscType {
+  Int = 'int',
+  Float = 'float',
+  String = 'string',
+  Blob = 'blob',
+  Time = 'time',
+  Long = 'long',
+  Double = 'double',
+  Char = 'char',
+  Color = 'color',
+  Bool = 'bool',
+  Array = 'array',
+  Nil = 'nil',
+  Infinity = 'infinity'
 }
 
-export type GlowComponent = {
-  __typename?: 'GlowComponent';
-  glowMode?: Maybe<GlowModeEnum>;
-  color?: Maybe<Scalars['String']>;
-};
-
-export type TemplateComponent = {
-  __typename?: 'TemplateComponent';
-  category?: Maybe<Scalars['String']>;
-};
-
-export type EngineComponent = {
-  __typename?: 'EngineComponent';
-  maxSpeed?: Maybe<Scalars['Float']>;
-  currentSpeed?: Maybe<Scalars['Float']>;
-  heat?: Maybe<Scalars['Float']>;
-  heatRate?: Maybe<Scalars['Float']>;
-  coolant?: Maybe<Scalars['Float']>;
-  cooling?: Maybe<Scalars['Boolean']>;
-};
-
-export enum EntityEngineEnum {
-  Warp = 'warp',
-  Impulse = 'impulse'
-}
-
-export type ThrustersComponent = {
-  __typename?: 'ThrustersComponent';
-  direction?: Maybe<Coordinates>;
-  rotationDelta?: Maybe<Coordinates>;
-  rotationSpeed?: Maybe<Scalars['Float']>;
-  movementSpeed?: Maybe<Scalars['Float']>;
+export type OscArg = {
+  __typename?: 'OscArg';
+  key?: Maybe<Scalars['String']>;
+  type?: Maybe<OscType>;
+  name?: Maybe<Scalars['String']>;
+  description?: Maybe<Scalars['String']>;
+  default?: Maybe<Scalars['String']>;
 };
 
 /** A GraphQL Schema defines the capabilities of a GraphQL server. It exposes all available types and directives on the server, as well as the entry points for query, mutation, and subscription operations. */
@@ -13435,6 +13482,46 @@ export type TimelineUpdateStepMutationVariables = Exact<{
 export type TimelineUpdateStepMutation = (
   { __typename?: 'Mutation' }
   & Pick<Mutation, 'updateTimelineStep'>
+);
+
+export type GetDictionariesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetDictionariesQuery = (
+  { __typename?: 'Query' }
+  & { oscDictionaries?: Maybe<Array<Maybe<(
+    { __typename?: 'OscDictionary' }
+    & Pick<OscDictionary, 'id' | 'name'>
+    & { methods?: Maybe<Array<Maybe<(
+      { __typename?: 'OscMethod' }
+      & Pick<OscMethod, 'id' | 'name' | 'description'>
+      & { args?: Maybe<Array<Maybe<(
+        { __typename?: 'OscArg' }
+        & Pick<OscArg, 'key' | 'type' | 'name' | 'description'>
+      )>>> }
+    )>>> }
+  )>>> }
+);
+
+export type GetDictionaryQueryVariables = Exact<{
+  id: Scalars['String'];
+}>;
+
+
+export type GetDictionaryQuery = (
+  { __typename?: 'Query' }
+  & { oscDictionary?: Maybe<(
+    { __typename?: 'OscDictionary' }
+    & Pick<OscDictionary, 'id' | 'name'>
+    & { methods?: Maybe<Array<Maybe<(
+      { __typename?: 'OscMethod' }
+      & Pick<OscMethod, 'id' | 'name' | 'description'>
+      & { args?: Maybe<Array<Maybe<(
+        { __typename?: 'OscArg' }
+        & Pick<OscArg, 'key' | 'type' | 'name' | 'description'>
+      )>>> }
+    )>>> }
+  )> }
 );
 
 export type AddClientMutationVariables = Exact<{
@@ -17293,6 +17380,52 @@ export function useTimelineUpdateStepMutation(baseOptions?: ApolloReactHooks.Mut
         return ApolloReactHooks.useMutation<TimelineUpdateStepMutation, TimelineUpdateStepMutationVariables>(TimelineUpdateStepDocument, baseOptions);
       }
 export type TimelineUpdateStepMutationHookResult = ReturnType<typeof useTimelineUpdateStepMutation>;
+export const GetDictionariesDocument = gql`
+    query GetDictionaries {
+  oscDictionaries {
+    id
+    name
+    methods {
+      id
+      name
+      description
+      args {
+        key
+        type
+        name
+        description
+      }
+    }
+  }
+}
+    `;
+export function useGetDictionariesQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<GetDictionariesQuery, GetDictionariesQueryVariables>) {
+        return ApolloReactHooks.useQuery<GetDictionariesQuery, GetDictionariesQueryVariables>(GetDictionariesDocument, baseOptions);
+      }
+export type GetDictionariesQueryHookResult = ReturnType<typeof useGetDictionariesQuery>;
+export const GetDictionaryDocument = gql`
+    query GetDictionary($id: String!) {
+  oscDictionary(id: $id) {
+    id
+    name
+    methods {
+      id
+      name
+      description
+      args {
+        key
+        type
+        name
+        description
+      }
+    }
+  }
+}
+    `;
+export function useGetDictionaryQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<GetDictionaryQuery, GetDictionaryQueryVariables>) {
+        return ApolloReactHooks.useQuery<GetDictionaryQuery, GetDictionaryQueryVariables>(GetDictionaryDocument, baseOptions);
+      }
+export type GetDictionaryQueryHookResult = ReturnType<typeof useGetDictionaryQuery>;
 export const AddClientDocument = gql`
     mutation AddClient($id: ID!, $client: SetClientInput!) {
   addClientToSet(id: $id, client: $client)
