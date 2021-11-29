@@ -119,7 +119,7 @@ const Config = () => {
           <Route path="midi" element={<Midi />} />
           <Route path="dmx/*" element={<DMX />} />
           <Route path="debug" element={<DebugList />} />
-          <Route path="osc" element={<OSC />} />
+          <Route path="osc/*" element={<OSC />} />
         </Routes>
       </div>
       <AlertsHolder alerts={alerts} dismiss={onDismiss} />

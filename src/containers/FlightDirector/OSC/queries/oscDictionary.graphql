@@ -1,0 +1,17 @@
+query GetDictionary($id: String!) {
+  oscDictionary(id: $id) {
+    id
+    name
+    methods {
+      id
+      name
+      description
+      args {
+        key
+        type
+        name
+        description
+      }
+    }
+  }
+}
