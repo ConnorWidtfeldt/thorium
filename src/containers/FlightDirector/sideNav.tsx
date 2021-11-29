@@ -35,6 +35,7 @@ import {
   FaBars,
   FaSlidersH,
   FaLightbulb,
+  FaNetworkWired,
   // FaRegStar,
 } from "react-icons/fa";
 import {AiOutlineFieldBinary} from "react-icons/ai";
@@ -158,6 +159,11 @@ const links: (NavLinkI | null)[] = [
     name: "MIDI Config",
     icon: FaSlidersH,
     link: "/config/midi",
+  },
+  {
+    name: "Open Sound Control",
+    icon: FaNetworkWired,
+    link: "/config/osc"
   },
   {
     name: "Settings",
