@@ -1128,6 +1128,7 @@ export type Mutation = {
   addTimelineStep?: Maybe<Scalars['ID']>;
   removeTimelineStep?: Maybe<Scalars['String']>;
   reorderTimelineStep?: Maybe<Scalars['String']>;
+  reorderTimelineItem?: Maybe<Scalars['String']>;
   updateTimelineStep?: Maybe<Scalars['String']>;
   addTimelineItemToTimelineStep?: Maybe<Scalars['String']>;
   removeTimelineStepItem?: Maybe<Scalars['String']>;
@@ -3621,6 +3622,15 @@ export type MutationReorderTimelineStepArgs = {
   simulatorId?: Maybe<Scalars['ID']>;
   missionId?: Maybe<Scalars['ID']>;
   timelineStepId: Scalars['ID'];
+  order: Scalars['Int'];
+};
+
+
+export type MutationReorderTimelineItemArgs = {
+  simulatorId?: Maybe<Scalars['ID']>;
+  missionId?: Maybe<Scalars['ID']>;
+  timelineStepId: Scalars['ID'];
+  timelineItemId: Scalars['ID'];
   order: Scalars['Int'];
 };
 
@@ -13506,6 +13516,19 @@ export type TimelineRemoveStepMutation = (
   & Pick<Mutation, 'removeTimelineStep'>
 );
 
+export type TimelineReorderItemMutationVariables = Exact<{
+  missionId?: Maybe<Scalars['ID']>;
+  timelineStepId: Scalars['ID'];
+  timelineItemId: Scalars['ID'];
+  order: Scalars['Int'];
+}>;
+
+
+export type TimelineReorderItemMutation = (
+  { __typename?: 'Mutation' }
+  & Pick<Mutation, 'reorderTimelineItem'>
+);
+
 export type TimelineReorderStepMutationVariables = Exact<{
   missionId?: Maybe<Scalars['ID']>;
   timelineStepId: Scalars['ID'];
@@ -17582,6 +17605,15 @@ export function useTimelineRemoveStepMutation(baseOptions?: ApolloReactHooks.Mut
         return ApolloReactHooks.useMutation<TimelineRemoveStepMutation, TimelineRemoveStepMutationVariables>(TimelineRemoveStepDocument, baseOptions);
       }
 export type TimelineRemoveStepMutationHookResult = ReturnType<typeof useTimelineRemoveStepMutation>;
+export const TimelineReorderItemDocument = gql`
+    mutation TimelineReorderItem($missionId: ID, $timelineStepId: ID!, $timelineItemId: ID!, $order: Int!) {
+  reorderTimelineItem(missionId: $missionId, timelineStepId: $timelineStepId, timelineItemId: $timelineItemId, order: $order)
+}
+    `;
+export function useTimelineReorderItemMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<TimelineReorderItemMutation, TimelineReorderItemMutationVariables>) {
+        return ApolloReactHooks.useMutation<TimelineReorderItemMutation, TimelineReorderItemMutationVariables>(TimelineReorderItemDocument, baseOptions);
+      }
+export type TimelineReorderItemMutationHookResult = ReturnType<typeof useTimelineReorderItemMutation>;
 export const TimelineReorderStepDocument = gql`
     mutation TimelineReorderStep($missionId: ID, $timelineStepId: ID!, $order: Int!) {
   reorderTimelineStep(missionId: $missionId, timelineStepId: $timelineStepId, order: $order)
