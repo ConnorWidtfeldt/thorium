@@ -1,0 +1,28 @@
+.oscAdmin {
+  .oscNav {
+    margin-top: 8px;
+    padding: 8px 4px;
+    display: flex;
+    justify-content: space-between;
+
+    &_heading {
+      margin: 0;
+    }
+
+    &_actions {
+      button {
+        margin-left: 8px;
+      }
+    }
+  }
+
+  .oscDeviceItem {
+    backdrop-filter: blur(20px);
+  }
+  .oscDeviceActions {
+    width: 100%;
+    .btn {
+      flex-basis: 0;
+    }
+  }
+}

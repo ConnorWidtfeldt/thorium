@@ -1,8 +1,5 @@
 import React from "react";
 
-
 export const Home: React.FC = () => {
-  return (
-    <div>Home!</div>
-  )
-}
+  return <h2>Home!</h2>;
+};

@@ -1,0 +1,7 @@
+query GetDevices {
+  oscDevices {
+    id
+    name
+    dictionary
+  }
+}
