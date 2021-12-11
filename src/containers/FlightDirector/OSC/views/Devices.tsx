@@ -17,8 +17,14 @@ import {
   ModalFooter,
   ModalProps,
 } from "reactstrap";
-import //useOscDevicesSubscription
-"generated/graphql";
+import {
+  useOscDevicesSubscription,
+  useOscDeviceRemoveMutation,
+} from "generated/graphql";
+
+// import {
+//   get
+// } from "generated/graphql";
 
 import {ViewContainer} from "./components/ViewContainer";
 
@@ -76,59 +82,32 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
   </Modal>
 );
 
-const deleteDevice = (id: string) => {
-  console.log("Deleted device:", id);
-};
-
 export const Devices: React.FC = () => {
   const navigate = useNavigate();
 
-  const devices: DeviceProps[] = [
-    {
-      id: "ql1",
-      name: "QLab Mac Mini",
-      dictionaryName: "QLab",
-    },
-    {
-      id: "ql2",
-      name: "QLab Mac Mini",
-      dictionaryName: "QLab",
-    },
-    {
-      id: "ql3",
-      name: "QLab Mac Mini",
-      dictionaryName: "QLab",
-    },
-    {
-      id: "ql4",
-      name: "QLab Mac Mini",
-      dictionaryName: "QLab",
-    },
-    {
-      id: "ql5",
-      name: "QLab Mac Mini",
-      dictionaryName: "QLab",
-    },
-    {
-      id: "ql6",
-      name: "QLab Mac Mini",
-      dictionaryName: "QLab",
-    },
-  ];
+  const devices =
+    (useOscDevicesSubscription().data?.oscDevices as DeviceProps[]) || [];
+  const [remove] = useOscDeviceRemoveMutation();
 
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
 
-  const handleEdit = useCallback((deviceId: string) => {
-    navigate(`${deviceId}/edit`);
-  }, []);
+  const handleEdit = useCallback(
+    (deviceId: string) => {
+      navigate(`${deviceId}/edit`);
+    },
+    [navigate],
+  );
 
   const handleCopy = useCallback((deviceId: string) => {
-    console.log("COPYING DEVICE!");
+    console.log("COPYING DEVICE!", deviceId);
   }, []);
 
   const handleDelete = useCallback((deviceId: string) => {
     setConfirmDelete(deviceId);
   }, []);
+  const deleteDevice = (id: string) => {
+    remove({variables: {id}});
+  };
 
   const actions = [
     {

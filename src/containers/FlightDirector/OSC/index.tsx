@@ -1,5 +1,5 @@
 import React from "react";
-import {Routes, Route, Link, useNavigate, useLocation} from "react-router-dom";
+import {Routes, Route, Link} from "react-router-dom";
 import {Container, Nav, NavItem, NavLink} from "reactstrap";
 
 import {Device, DeviceAdd, Devices, Dictionaries, Home} from "./views";
@@ -7,9 +7,6 @@ import {Device, DeviceAdd, Devices, Dictionaries, Home} from "./views";
 import "./style.scss";
 
 const OSC: React.FC = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
-
   return (
     <Container className="oscAdmin my-4">
       <div className="mb-4">

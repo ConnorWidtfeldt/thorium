@@ -1,0 +1,3 @@
+mutation OscDeviceCreate($device: OscDeviceInput!) {
+  oscDeviceCreate(device: $device)
+}

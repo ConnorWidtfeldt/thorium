@@ -3,85 +3,49 @@ import uuid from "uuid";
 import {pubsub} from "../helpers/subscriptionManager";
 
 import App from "../app";
+import {OscDevice} from "../classes";
 
 const schema = gql`
-  type OscDictionary {
-    id: String
-    name: String
-    methods: [OscMethod]
-  }
-  type OscMethod {
-    id: String
-    name: String
-    description: String
-    args: [OscArg]
-  }
-  enum OscType {
-    int
-    float
-    string
-    blob
-    time
-    long
-    double
-    char
-    color
-    bool
-    array
-    nil
-    infinity
-  }
-  type OscArg {
-    key: String
-    type: OscType
-
-    name: String
-    description: String
-    default: String
-  }
   type OscDevice {
-    id: String
+    id: ID
+    name: String
+    dictionary: String
+  }
+  input OscDeviceInput {
     name: String
     dictionary: String
   }
   extend type Query {
     oscDevices: [OscDevice!]!
   }
+  extend type Mutation {
+    oscDeviceCreate(device: OscDeviceInput!): String
+    oscDeviceRemove(id: ID!): Boolean
+  }
   extend type Subscription {
     oscDevices: [OscDevice!]!
-    # oscDictionaries: [OscDictionary]
-    # oscDictionary(id: String): OscDictionary
   }
 `;
-
-// const flattenDictionaries = () => (
-//   App.oscDictionaries.map(dictionary => ({
-//     ...dictionary,
-//     methods: dictionary.methods.map(method => ({
-//       ...method,
-//       args: Object.entries(method.args).map(([key, value]) => ({
-//         key,
-//         ...value
-//       }))
-//     }))
-//   }))
-// )
-
-// const resolver = {
-//   Query: {
-//     oscDictionaries() {
-//       return flattenDictionaries()
-//     },
-//     oscDictionary(_, {id}) {
-//       return flattenDictionaries().find(dictionary => (dictionary.id === id))
-//     }
-//   }
-// }
 
 const resolver = {
   Query: {
     oscDevices() {
       return App.oscDevices;
+    },
+  },
+  Mutation: {
+    oscDeviceCreate(_, {device}) {
+      const oscDevice = new OscDevice(device);
+      App.oscDevices.push(oscDevice);
+      pubsub.publish("oscDevices", App.oscDevices);
+      return oscDevice.id;
+    },
+    oscDeviceRemove(_, {id}) {
+      const exists = App.oscDevices.find(f => f.id == id);
+      if (!exists) return false;
+      App.oscDevices = App.oscDevices.filter(f => f.id !== id);
+      pubsub.publish("oscDevices", App.oscDevices);
+      return true;
     },
   },
   Subscription: {

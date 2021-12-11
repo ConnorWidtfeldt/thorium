@@ -2889,6 +2889,8 @@ type Mutation {
   """Macro: Tasks: Activate Task Flow"""
   taskFlowActivate(id: ID!, simulatorId: ID!): String
   taskFlowAdvance(simulatorId: ID!): String
+  oscDeviceCreate(device: OscDeviceInput!): String
+  oscDeviceRemove(id: ID!): Boolean
 }
 
 type NamedObject {
@@ -2988,41 +2990,15 @@ input ObjectiveInput {
   order: Int
 }
 
-type OscArg {
-  key: String
-  type: OscType
+type OscDevice {
+  id: ID
   name: String
-  description: String
-  default: String
+  dictionary: String
 }
 
-type OscDictionary {
-  id: String
+input OscDeviceInput {
   name: String
-  methods: [OscMethod]
-}
-
-type OscMethod {
-  id: String
-  name: String
-  description: String
-  args: [OscArg]
-}
-
-enum OscType {
-  int
-  float
-  string
-  blob
-  time
-  long
-  double
-  char
-  color
-  bool
-  array
-  nil
-  infinity
+  dictionary: String
 }
 
 type PainPoint {
@@ -3388,8 +3364,7 @@ type Query {
   dmxConfig(id: ID!): DMXConfig
   dmxConfigs: [DMXConfig!]!
   taskFlows(simulatorId: ID): [TaskFlow!]!
-  oscDictionaries: [OscDictionary]
-  oscDictionary(id: String): OscDictionary
+  oscDevices: [OscDevice!]!
 }
 
 type Railgun implements SystemInterface {
@@ -4202,6 +4177,7 @@ type Subscription {
   dmxFixtures(simulatorId: ID, clientId: ID): [DMXFixture!]!
   dmxConfigs: [DMXConfig!]!
   taskFlows(simulatorId: ID): [TaskFlow!]!
+  oscDevices: [OscDevice!]!
 }
 
 type SubspaceField implements SystemInterface {
