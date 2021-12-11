@@ -140,8 +140,7 @@ export type Query = {
   dmxConfig?: Maybe<DmxConfig>;
   dmxConfigs: Array<DmxConfig>;
   taskFlows: Array<TaskFlow>;
-  oscDictionaries?: Maybe<Array<Maybe<OscDictionary>>>;
-  oscDictionary?: Maybe<OscDictionary>;
+  oscDevices: Array<OscDevice>;
 };
 
 
@@ -690,11 +689,6 @@ export type QueryDmxConfigArgs = {
 
 export type QueryTaskFlowsArgs = {
   simulatorId?: Maybe<Scalars['ID']>;
-};
-
-
-export type QueryOscDictionaryArgs = {
-  id?: Maybe<Scalars['String']>;
 };
 
 export type Mutation = {
@@ -1776,6 +1770,8 @@ export type Mutation = {
   /** Macro: Tasks: Activate Task Flow */
   taskFlowActivate?: Maybe<Scalars['String']>;
   taskFlowAdvance?: Maybe<Scalars['String']>;
+  oscDeviceCreate?: Maybe<Scalars['String']>;
+  oscDeviceRemove?: Maybe<Scalars['Boolean']>;
 };
 
 
@@ -6528,6 +6524,16 @@ export type MutationTaskFlowAdvanceArgs = {
   simulatorId: Scalars['ID'];
 };
 
+
+export type MutationOscDeviceCreateArgs = {
+  device: OscDeviceInput;
+};
+
+
+export type MutationOscDeviceRemoveArgs = {
+  id: Scalars['ID'];
+};
+
 export type Subscription = {
   __typename?: 'Subscription';
   _empty?: Maybe<Scalars['String']>;
@@ -6641,6 +6647,7 @@ export type Subscription = {
   dmxFixtures: Array<DmxFixture>;
   dmxConfigs: Array<DmxConfig>;
   taskFlows: Array<TaskFlow>;
+  oscDevices: Array<OscDevice>;
 };
 
 
@@ -10747,44 +10754,16 @@ export type TaskFlow = {
   completed: Scalars['Boolean'];
 };
 
-export type OscDictionary = {
-  __typename?: 'OscDictionary';
-  id?: Maybe<Scalars['String']>;
+export type OscDevice = {
+  __typename?: 'OscDevice';
+  id?: Maybe<Scalars['ID']>;
   name?: Maybe<Scalars['String']>;
-  methods?: Maybe<Array<Maybe<OscMethod>>>;
+  dictionary?: Maybe<Scalars['String']>;
 };
 
-export type OscMethod = {
-  __typename?: 'OscMethod';
-  id?: Maybe<Scalars['String']>;
+export type OscDeviceInput = {
   name?: Maybe<Scalars['String']>;
-  description?: Maybe<Scalars['String']>;
-  args?: Maybe<Array<Maybe<OscArg>>>;
-};
-
-export enum OscType {
-  Int = 'int',
-  Float = 'float',
-  String = 'string',
-  Blob = 'blob',
-  Time = 'time',
-  Long = 'long',
-  Double = 'double',
-  Char = 'char',
-  Color = 'color',
-  Bool = 'bool',
-  Array = 'array',
-  Nil = 'nil',
-  Infinity = 'infinity'
-}
-
-export type OscArg = {
-  __typename?: 'OscArg';
-  key?: Maybe<Scalars['String']>;
-  type?: Maybe<OscType>;
-  name?: Maybe<Scalars['String']>;
-  description?: Maybe<Scalars['String']>;
-  default?: Maybe<Scalars['String']>;
+  dictionary?: Maybe<Scalars['String']>;
 };
 
 /** A GraphQL Schema defines the capabilities of a GraphQL server. It exposes all available types and directives on the server, as well as the entry points for query, mutation, and subscription operations. */
@@ -13461,43 +13440,34 @@ export type TimelineUpdateStepMutation = (
   & Pick<Mutation, 'updateTimelineStep'>
 );
 
-export type GetDictionariesQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type GetDictionariesQuery = (
-  { __typename?: 'Query' }
-  & { oscDictionaries?: Maybe<Array<Maybe<(
-    { __typename?: 'OscDictionary' }
-    & Pick<OscDictionary, 'id' | 'name'>
-    & { methods?: Maybe<Array<Maybe<(
-      { __typename?: 'OscMethod' }
-      & Pick<OscMethod, 'id' | 'name' | 'description'>
-      & { args?: Maybe<Array<Maybe<(
-        { __typename?: 'OscArg' }
-        & Pick<OscArg, 'key' | 'type' | 'name' | 'description'>
-      )>>> }
-    )>>> }
-  )>>> }
-);
-
-export type GetDictionaryQueryVariables = Exact<{
-  id: Scalars['String'];
+export type OscDeviceCreateMutationVariables = Exact<{
+  device: OscDeviceInput;
 }>;
 
 
-export type GetDictionaryQuery = (
-  { __typename?: 'Query' }
-  & { oscDictionary?: Maybe<(
-    { __typename?: 'OscDictionary' }
-    & Pick<OscDictionary, 'id' | 'name'>
-    & { methods?: Maybe<Array<Maybe<(
-      { __typename?: 'OscMethod' }
-      & Pick<OscMethod, 'id' | 'name' | 'description'>
-      & { args?: Maybe<Array<Maybe<(
-        { __typename?: 'OscArg' }
-        & Pick<OscArg, 'key' | 'type' | 'name' | 'description'>
-      )>>> }
-    )>>> }
+export type OscDeviceCreateMutation = (
+  { __typename?: 'Mutation' }
+  & Pick<Mutation, 'oscDeviceCreate'>
+);
+
+export type OscDeviceRemoveMutationVariables = Exact<{
+  id: Scalars['ID'];
+}>;
+
+
+export type OscDeviceRemoveMutation = (
+  { __typename?: 'Mutation' }
+  & Pick<Mutation, 'oscDeviceRemove'>
+);
+
+export type OscDevicesSubscriptionVariables = Exact<{ [key: string]: never; }>;
+
+
+export type OscDevicesSubscription = (
+  { __typename?: 'Subscription' }
+  & { oscDevices: Array<(
+    { __typename?: 'OscDevice' }
+    & Pick<OscDevice, 'id' | 'name' | 'dictionary'>
   )> }
 );
 
@@ -17348,52 +17318,37 @@ export function useTimelineUpdateStepMutation(baseOptions?: ApolloReactHooks.Mut
         return ApolloReactHooks.useMutation<TimelineUpdateStepMutation, TimelineUpdateStepMutationVariables>(TimelineUpdateStepDocument, baseOptions);
       }
 export type TimelineUpdateStepMutationHookResult = ReturnType<typeof useTimelineUpdateStepMutation>;
-export const GetDictionariesDocument = gql`
-    query GetDictionaries {
-  oscDictionaries {
+export const OscDeviceCreateDocument = gql`
+    mutation OscDeviceCreate($device: OscDeviceInput!) {
+  oscDeviceCreate(device: $device)
+}
+    `;
+export function useOscDeviceCreateMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<OscDeviceCreateMutation, OscDeviceCreateMutationVariables>) {
+        return ApolloReactHooks.useMutation<OscDeviceCreateMutation, OscDeviceCreateMutationVariables>(OscDeviceCreateDocument, baseOptions);
+      }
+export type OscDeviceCreateMutationHookResult = ReturnType<typeof useOscDeviceCreateMutation>;
+export const OscDeviceRemoveDocument = gql`
+    mutation OscDeviceRemove($id: ID!) {
+  oscDeviceRemove(id: $id)
+}
+    `;
+export function useOscDeviceRemoveMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<OscDeviceRemoveMutation, OscDeviceRemoveMutationVariables>) {
+        return ApolloReactHooks.useMutation<OscDeviceRemoveMutation, OscDeviceRemoveMutationVariables>(OscDeviceRemoveDocument, baseOptions);
+      }
+export type OscDeviceRemoveMutationHookResult = ReturnType<typeof useOscDeviceRemoveMutation>;
+export const OscDevicesDocument = gql`
+    subscription OscDevices {
+  oscDevices {
     id
     name
-    methods {
-      id
-      name
-      description
-      args {
-        key
-        type
-        name
-        description
-      }
-    }
+    dictionary
   }
 }
     `;
-export function useGetDictionariesQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<GetDictionariesQuery, GetDictionariesQueryVariables>) {
-        return ApolloReactHooks.useQuery<GetDictionariesQuery, GetDictionariesQueryVariables>(GetDictionariesDocument, baseOptions);
+export function useOscDevicesSubscription(baseOptions?: ApolloReactHooks.SubscriptionHookOptions<OscDevicesSubscription, OscDevicesSubscriptionVariables>) {
+        return ApolloReactHooks.useSubscription<OscDevicesSubscription, OscDevicesSubscriptionVariables>(OscDevicesDocument, baseOptions);
       }
-export type GetDictionariesQueryHookResult = ReturnType<typeof useGetDictionariesQuery>;
-export const GetDictionaryDocument = gql`
-    query GetDictionary($id: String!) {
-  oscDictionary(id: $id) {
-    id
-    name
-    methods {
-      id
-      name
-      description
-      args {
-        key
-        type
-        name
-        description
-      }
-    }
-  }
-}
-    `;
-export function useGetDictionaryQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<GetDictionaryQuery, GetDictionaryQueryVariables>) {
-        return ApolloReactHooks.useQuery<GetDictionaryQuery, GetDictionaryQueryVariables>(GetDictionaryDocument, baseOptions);
-      }
-export type GetDictionaryQueryHookResult = ReturnType<typeof useGetDictionaryQuery>;
+export type OscDevicesSubscriptionHookResult = ReturnType<typeof useOscDevicesSubscription>;
 export const AddClientDocument = gql`
     mutation AddClient($id: ID!, $client: SetClientInput!) {
   addClientToSet(id: $id, client: $client)

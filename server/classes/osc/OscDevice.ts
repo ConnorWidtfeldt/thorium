@@ -1,7 +1,7 @@
 import uuid from "uuid";
 
 export class OscDevice {
-  class: "OSCDevice" = "OSCDevice";
+  class: "OscDevice" = "OscDevice";
   id: string;
   name: string;
   dictionary: string;

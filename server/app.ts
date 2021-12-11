@@ -90,11 +90,7 @@ class Events extends EventEmitter {
   port: number = process.env.NODE_ENV === "production" ? 4444 : 3001;
 
   // osc
-  oscDevices: ClassesImport.OscDevice[] = [
-    new ClassesImport.OscDevice({
-      name: "Test Device",
-    }),
-  ];
+  oscDevices: ClassesImport.OscDevice[] = [];
 
   events: any[] = [];
   mutations: {[key: string]: Function} = {};
@@ -164,6 +160,12 @@ class Events extends EventEmitter {
       if (key === "hackingPresets" && snapshot.hackingPresets) {
         this.hackingPresets = snapshot.hackingPresets.map(
           m => new ClassesImport.HackingPreset(m),
+        );
+        return;
+      }
+      if (key === "oscDevices" && snapshot.oscDevices) {
+        this.oscDevices = snapshot.oscDevices.map(
+          m => new ClassesImport.OscDevice(m),
         );
         return;
       }

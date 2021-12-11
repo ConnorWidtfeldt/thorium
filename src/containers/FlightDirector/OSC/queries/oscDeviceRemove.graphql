@@ -1,0 +1,3 @@
+mutation OscDeviceRemove($id: ID!) {
+  oscDeviceRemove(id: $id)
+}

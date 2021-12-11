@@ -8,7 +8,7 @@ interface ActionItem {
 }
 interface ViewContainerProps {
   title: string;
-  children: React.ReactNode;
+  children?: React.ReactNode;
   actions?: ActionItem[];
 }
 
@@ -19,7 +19,11 @@ export const ViewContainer: React.FC<ViewContainerProps> = props => {
         <h3 className="oscNav_heading">{props.title}</h3>
         <div className="oscNav_actions">
           {props.actions?.map(button => (
-            <Button color={button.color} onClick={button.onClick}>
+            <Button
+              color={button.color}
+              onClick={button.onClick}
+              key={button.text}
+            >
               {button.text}
             </Button>
           ))}

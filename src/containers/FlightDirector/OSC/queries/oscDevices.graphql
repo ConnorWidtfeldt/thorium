@@ -1,4 +1,4 @@
-query GetDevices {
+subscription OscDevices {
   oscDevices {
     id
     name
