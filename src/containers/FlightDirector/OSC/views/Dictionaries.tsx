@@ -1,8 +1,5 @@
 import React from "react";
 
-
 export const Dictionaries: React.FC = () => {
-  return (
-    <div>Dictionaries!</div>
-  )
-}
+  return <h2>Dictionaries!</h2>;
+};

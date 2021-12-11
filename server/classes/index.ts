@@ -69,4 +69,4 @@ export {default as DMXFixture} from "./DMX/DMXFixture";
 export {default as DMXSet} from "./DMX/DMXSet";
 export {TaskFlow} from "./taskFlow";
 export {HackingPreset} from "./computerCore/hackingPreset";
-export * as OSC from "./OSC";
+export * from "./osc";
