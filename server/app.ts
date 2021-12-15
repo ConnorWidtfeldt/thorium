@@ -88,13 +88,7 @@ class Events extends EventEmitter {
   googleSheetsTokens: any = {};
   httpOnly: boolean = false;
   port: number = process.env.NODE_ENV === "production" ? 4444 : 3001;
-
-  // osc
-  oscDevices: ClassesImport.OSC.OscDevice[] = [];
-  oscDictionaries: ClassesImport.OSC.OscDictionary[] = [
-    ClassesImport.OSC.QLab
-  ];
-
+  oscDevices: ClassesImport.OscDevice[] = [];
   events: any[] = [];
   mutations: {[key: string]: Function} = {};
   replaying = false;
@@ -166,7 +160,6 @@ class Events extends EventEmitter {
         );
         return;
       }
-      if (key === "oscDictionaries") return;
       if (snapshot[key] instanceof Array) {
         snapshot[key].forEach((obj: any) => {
           if (Object.keys(obj).length !== 0) {

@@ -87,12 +87,12 @@ export type OscValidation<T> = {
 };
 
 interface OscMethodCommon {
-  id: string;
   name: string;
   color?: string;
 }
 
 export interface OscMethod<T = void> extends OscMethodCommon {
+  id: string;
   description?: string;
   args: {
     [key in keyof T]: OscArgMeta<T>;
@@ -102,13 +102,9 @@ export interface OscMethod<T = void> extends OscMethodCommon {
 }
 export type OscGenericMethod = OscMethod<any>;
 
-export interface OscMethodGroup extends OscMethodCommon {
-  methods: OscGenericMethod[];
-}
-
 export interface OscDictionary {
   id: string;
   name: string;
   description?: string;
-  methods: OscMethodGroup[];
+  methods: OscGenericMethod[];
 }

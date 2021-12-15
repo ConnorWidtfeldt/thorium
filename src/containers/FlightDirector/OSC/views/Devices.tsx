@@ -77,6 +77,7 @@ interface DeleteModalProps extends ModalProps {
 }
 
 interface AddResult {
+  id: string;
   name: string;
   dictionaryId: string;
 }
@@ -107,6 +108,7 @@ const AddModal: React.FC<AddModalProps> = ({
   } = useOscDictionariesQuery();
   const dictionaries = dictionariesData?.oscDictionaries;
 
+  const [id, setId] = useState<string | undefined>();
   const [name, setName] = useState<string | undefined>();
   const [dictionaryId, setDictionaryId] = useState<string | undefined>();
 
@@ -127,7 +129,11 @@ const AddModal: React.FC<AddModalProps> = ({
 
   const canSave = name?.length && dictionaryId;
   const handleSave = () => {
-    onSave({name: name!, dictionaryId: dictionaryId!});
+    onSave({
+      id: id!,
+      name: name!,
+      dictionaryId: dictionaryId!,
+    });
   };
 
   return (
@@ -136,6 +142,15 @@ const AddModal: React.FC<AddModalProps> = ({
 
       <ModalBody>
         <Form>
+          <FormGroup>
+            <Label for="name">Id</Label>
+            <Input
+              name="id"
+              type="text"
+              value={id ?? ""}
+              onChange={({target}) => setId(target.value)}
+            />
+          </FormGroup>
           <FormGroup>
             <Label for="name">Name</Label>
             <Input
@@ -256,6 +271,7 @@ export const Devices: React.FC = () => {
           createDevice({
             variables: {
               device: {
+                id: newDevice.id,
                 name: newDevice.name,
                 dictionary: newDevice.dictionaryId,
               },
@@ -263,9 +279,9 @@ export const Devices: React.FC = () => {
           }).then(({data}) => {
             const deviceId = data?.oscDeviceCreate;
             if (deviceId) {
-              navigate(`${deviceId}/edit`)
+              navigate(`${deviceId}/edit`);
             }
-          })
+          });
           setIsAddingDevice(false);
         }}
       />
@@ -285,9 +301,9 @@ export const Devices: React.FC = () => {
           }).then(({data}) => {
             const deviceId = data?.oscDeviceDuplicate;
             if (deviceId) {
-              navigate(`${deviceId}/edit`)
+              navigate(`${deviceId}/edit`);
             }
-          })
+          });
           setCopyDevice(null);
         }}
       />
