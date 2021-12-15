@@ -11,7 +11,7 @@ const OSC: React.FC = () => {
     <div className="osc">
       <Container className="my-4" fluid="xl">
         <div className="mb-4">
-          <h3>Open Sound Control</h3>
+          <h3 className="oscTitle">Open Sound Control</h3>
         </div>
 
         <Nav tabs>

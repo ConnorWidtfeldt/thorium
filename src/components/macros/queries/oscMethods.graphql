@@ -1,7 +1,6 @@
 query OscMethods($dictionary: ID) {
   oscMethods(dictionary: $dictionary) {
     id
-    group
     name
   }
 }

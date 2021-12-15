@@ -3,23 +3,27 @@ import uuid from "uuid";
 import {pubsub} from "../helpers/subscriptionManager";
 
 import App from "../app";
-import {
-  OscDevice,
-  OscDictionary,
-  OscMethod,
-  OscMethodGroup,
-} from "../classes/osc";
-import {generateMethodPath} from "../helpers/osc";
+import * as OSC from "../helpers/osc";
+import {OscDevice} from "../classes/osc";
 
 const schema = gql`
   type OscDevice {
     id: ID!
     name: String!
-    dictionary: OscDictionary
+    dictionary: OscDictionary!
+    address: String!
+    port: Int!
   }
   input OscDeviceInput {
+    id: ID
     name: String!
     dictionary: ID!
+  }
+
+  input OscDeviceConfig {
+    name: String
+    address: String
+    port: Int
   }
 
   type OscDictionary {
@@ -36,16 +40,10 @@ const schema = gql`
   type OscMethod {
     id: String!
     name: String!
-    group: String
     path: String!
     description: String
 
     color: String
-  }
-
-  input OscArgInput {
-    key: String!
-    value: String!
   }
 
   type OscMethodArgs {
@@ -61,13 +59,15 @@ const schema = gql`
     oscDictionary(id: ID!): OscDictionary
 
     oscMethods(dictionary: ID): [OscMethod!]!
-
     oscMethodArgs(methodId: ID!): [OscMethodArgs!]!
+
+    oscMethodValidation(id: ID!, args: JSON!): JSON!
   }
   extend type Mutation {
     oscDeviceCreate(device: OscDeviceInput!): ID
     oscDeviceRemove(id: ID!): Boolean
     oscDeviceDuplicate(name: String!, original: ID!): ID
+    oscDeviceConfigure(id: ID!, config: OscDeviceConfig!): Boolean
 
     oscDictionaryCreate(dictionary: OscDictionaryInput!): ID
 
@@ -87,26 +87,19 @@ const getDevices = () =>
     dictionary: getDictionary(dictionaryId),
   }));
 
-const flattenMethodGroup = group =>
-  group.methods.map(method => ({
-    ...method,
-    id: `${group.id}.${method.id}`,
-    group: group.name,
-    color: method.color || group.color,
-  }));
-
-const flattenDictionary = dictionary => ({
-  ...dictionary,
-  methods: dictionary.methods.flatMap(group =>
-    flattenMethodGroup({
-      ...group,
-      id: `${dictionary.id}.${group.id}`,
-    }),
-  ),
-});
-
+interface Method extends OSC.OscMethod {
+  path: string;
+}
 const getDictionaries = () =>
-  App.oscDictionaries.flatMap(dictionary => flattenDictionary(dictionary));
+  OSC.dictionaries.map((dictionary: OSC.OscDictionary) => ({
+    ...dictionary,
+    methods: dictionary.methods.map(
+      (method: OSC.OscMethod): Method => ({
+        ...method,
+        path: OSC.generateMethodPath(method),
+      }),
+    ),
+  }));
 const getDictionary = (id: string) =>
   getDictionaries().find(dictionary => dictionary.id === id);
 
@@ -115,7 +108,7 @@ const getMethods = () =>
 const getMethod = (methodId: string) =>
   getMethods().find(method => method.id === methodId);
 
-const createMethodArgSchema = (method: OscMethod<any>) => {
+const createMethodArgSchema = (method: OSC.OscMethod<any>) => {
   return Object.entries(method.args).map(([key, arg]) => ({
     key,
     name: arg.name,
@@ -147,10 +140,13 @@ const resolver = {
     },
     oscMethodArgs(_, {methodId}) {
       const method = getMethod(methodId);
-      if (method === undefined) {
-        return [];
-      }
-      return createMethodArgSchema(method);
+      if (!method) return [];
+      return createMethodArgSchema(method as OSC.OscMethod);
+    },
+    oscMethodValidation(_, {id, args}) {
+      const method: OSC.OscMethod = getMethod(id);
+      if (method === undefined) return [];
+      return method.validate(args);
     },
   },
   Mutation: {
@@ -185,6 +181,15 @@ const resolver = {
       App.oscDevices.push(duplicateDevice);
       pubsub.publish("oscDevices", App.oscDevices);
       return duplicateDevice.id;
+    },
+    oscDeviceConfigure(_, {id, config}) {
+      const device = App.oscDevices.find(d => d.id === id);
+      if (!device) return false;
+
+      if (config.name) device.setName(config.name);
+      if (config.address) device.setAddress(config.address);
+      if (config.port) device.setPort(config.port);
+      return true;
     },
   },
   Subscription: {

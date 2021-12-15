@@ -1,34 +1,15 @@
-import React from "react";
+import React, {useState} from "react";
 import {useParams} from "react-router-dom";
+import {Label, Input} from "reactstrap";
 import {
-  Row,
-  Col,
-  CardBody,
-  CardTitle,
-  CardSubtitle,
-  CardText,
-  Button,
-} from "reactstrap";
+  useOscDeviceConfigureMutation,
+  OscDeviceConfig,
+  useOscDevicesSubscription,
+  useOscDeviceQuery,
+} from "generated/graphql";
 
 import {ViewContainer} from "./components";
-
-const DeviceConfig: React.FC = () => {
-  return (
-    <div className="oscDevice oscCard">
-      <CardBody>
-        <CardTitle tag="h5">Card title</CardTitle>
-        <CardSubtitle className="mb-2 text-muted" tag="h6">
-          Card subtitle
-        </CardSubtitle>
-        <CardText>
-          Some quick example text to build on the card title and make up the
-          bulk of the card's content.
-        </CardText>
-        <Button>Button</Button>
-      </CardBody>
-    </div>
-  );
-};
+import {useDebounce} from "helpers/useDebounce";
 
 interface DeviceProps {
   id?: string;
@@ -41,18 +22,60 @@ export const Device: React.FC<DeviceProps> = props => {
     ...props,
   };
 
-  if (!props.edit) {
-    return <div>You are currently viewing a device: {props.id}</div>;
+  const {data: deviceData, loading: deviceLoading} = useOscDeviceQuery({
+    variables: {
+      id: props.id!,
+    },
+  });
+  const device = deviceData?.oscDevice;
+
+  const [configureDevice] = useOscDeviceConfigureMutation();
+  const configureDeviceDebounce = useDebounce(configureDevice, 250);
+  const [config, setConfig] = useState<OscDeviceConfig>();
+
+  if (config === undefined && !deviceLoading && device) {
+    setConfig(device);
   }
+
+  const updateConfig = (newConfig: Partial<OscDeviceConfig>) => {
+    setConfig({...config, ...newConfig});
+    configureDeviceDebounce({
+      variables: {
+        id: props.id!,
+        config: newConfig,
+      },
+    });
+  };
 
   return (
     <ViewContainer title="Edit Device">
-      <Row>
-        <Col xs="8">
-          <DeviceConfig />
-        </Col>
-        <Col xs="4"></Col>
-      </Row>
+      <div className="oscDevice oscCard">
+        <Label for="name">Name</Label>
+        <Input
+          name="name"
+          type="text"
+          value={config?.name || ""}
+          onChange={({target}) => updateConfig({name: target.value})}
+        />
+
+        <Label for="address">Address</Label>
+        <Input
+          name="address"
+          type="text"
+          value={config?.address || ""}
+          onChange={({target}) => updateConfig({address: target.value})}
+        />
+
+        <Label for="port">Port</Label>
+        <Input
+          name="port"
+          type="number"
+          min={0}
+          max={65535}
+          value={config?.port || ""}
+          onChange={({target}) => updateConfig({port: parseInt(target.value)})}
+        />
+      </div>
     </ViewContainer>
   );
 };

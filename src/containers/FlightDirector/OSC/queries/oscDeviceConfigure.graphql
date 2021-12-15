@@ -1,0 +1,3 @@
+mutation OscDeviceConfigure($id: ID!, $config: OscDeviceConfig!) {
+  oscDeviceConfigure(id: $id, config: $config)
+}

@@ -2892,6 +2892,7 @@ type Mutation {
   oscDeviceCreate(device: OscDeviceInput!): ID
   oscDeviceRemove(id: ID!): Boolean
   oscDeviceDuplicate(name: String!, original: ID!): ID
+  oscDeviceConfigure(id: ID!, config: OscDeviceConfig!): Boolean
   oscDictionaryCreate(dictionary: OscDictionaryInput!): ID
 
   """Macro: OSC: Invoke Method"""
@@ -2995,18 +2996,22 @@ input ObjectiveInput {
   order: Int
 }
 
-input OscArgInput {
-  key: String!
-  value: String!
-}
-
 type OscDevice {
   id: ID!
   name: String!
-  dictionary: OscDictionary
+  dictionary: OscDictionary!
+  address: String!
+  port: Int!
+}
+
+input OscDeviceConfig {
+  name: String
+  address: String
+  port: Int
 }
 
 input OscDeviceInput {
+  id: ID
   name: String!
   dictionary: ID!
 }
@@ -3026,7 +3031,6 @@ input OscDictionaryInput {
 type OscMethod {
   id: String!
   name: String!
-  group: String
   path: String!
   description: String
   color: String
@@ -3406,6 +3410,7 @@ type Query {
   oscDictionary(id: ID!): OscDictionary
   oscMethods(dictionary: ID): [OscMethod!]!
   oscMethodArgs(methodId: ID!): [OscMethodArgs!]!
+  oscMethodValidation(id: ID!, args: JSON!): JSON!
 }
 
 type Railgun implements SystemInterface {

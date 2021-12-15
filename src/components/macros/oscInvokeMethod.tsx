@@ -1,7 +1,8 @@
 import React, {useState} from "react";
 import {MacroConfigProps} from "helpers/genericTypes";
-
 import {Input, Label} from "reactstrap";
+
+import {useDebounce} from "../../helpers/useDebounce";
 
 import {
   OscDevice,
@@ -9,21 +10,9 @@ import {
   useOscDevicesSubscription,
   useOscMethodArgsQuery,
   useOscMethodsQuery,
+  useOscMethodValidationQuery,
 } from "generated/graphql";
 
-const groupMethods = (methods: OscMethod[]): {[key: string]: OscMethod[]} => {
-  const map = new Map();
-  methods.forEach(item => {
-    const key = item.group;
-    const collection = map.get(key);
-    if (!collection) {
-      map.set(key, [item]);
-    } else {
-      collection.push(item);
-    }
-  });
-  return Object.fromEntries(map);
-};
 const UNSELECTED_VALUE = "_unselected";
 
 interface OscDeviceSelectionProps {
@@ -66,14 +55,13 @@ interface OscMethodSelectionProps {
   enabled: boolean;
   dictionaryId?: string;
   methodId?: string;
-  onChange: (methodId: string) => void;
+  onChange: (methodId?: string) => void;
 }
 const OscMethodSelection: React.FC<OscMethodSelectionProps> = props => {
   const {data} = useOscMethodsQuery({
     variables: {dictionary: props.dictionaryId},
   });
   const methods = (data?.oscMethods || []) as OscMethod[];
-  const groups = groupMethods(methods);
 
   return (
     <>
@@ -88,14 +76,10 @@ const OscMethodSelection: React.FC<OscMethodSelectionProps> = props => {
         <option disabled value={UNSELECTED_VALUE}>
           Select a Method
         </option>
-        {Object.entries(groups).map(([group, methods]) => (
-          <optgroup label={group} key={group}>
-            {methods.map((method: OscMethod) => (
-              <option value={method.id} key={method.id}>
-                {method.name}
-              </option>
-            ))}
-          </optgroup>
+        {methods.map((method: OscMethod) => (
+          <option value={method.id} key={method.id}>
+            {method.name}
+          </option>
         ))}
       </Input>
     </>
@@ -107,16 +91,23 @@ interface OscArgProps<T> {
   name: string;
   value?: T;
   onChange: (value: T) => void;
+
+  valid: boolean;
+  feedback?: string;
 }
 const StringArg: React.FC<OscArgProps<string>> = props => (
   <div key={props.key}>
     <Label name={"arg_" + props.key} type="text">
-      {props.name}:
+      <span>{props.name}:</span>
+      {props.feedback && (
+        <span className="oscArgFeedback">{props.feedback}</span>
+      )}
     </Label>
     <Input
       name={"arg_" + props.key}
       type="text"
       value={props.value || ""}
+      invalid={!props.valid}
       onChange={({target}) => props.onChange(target.value)}
     ></Input>
   </div>
@@ -131,6 +122,7 @@ interface ArgValues {
 }
 
 interface OscMethodArgsProps {
+  enabled: boolean;
   methodId: string;
   args: ArgValues;
   updateArgs: (ags: ArgValues) => void;
@@ -142,6 +134,18 @@ const OscMethodArgs: React.FC<OscMethodArgsProps> = props => {
     },
   });
   const methodArgs = data?.oscMethodArgs;
+
+  const {data: validationData} = useOscMethodValidationQuery({
+    variables: {
+      id: props.methodId,
+      args: props.args,
+    },
+  });
+  const validation = validationData?.oscMethodValidation || {};
+
+  if (!props.enabled) {
+    return <h6>Select a device and method to continue</h6>;
+  }
 
   return (
     <fieldset>
@@ -156,6 +160,8 @@ const OscMethodArgs: React.FC<OscMethodArgsProps> = props => {
             newValues[arg.key] = value;
             props.updateArgs(newValues);
           },
+          valid: validation[arg.key] === true,
+          feedback: validation[arg.key]?.message,
         }),
       )}
     </fieldset>
@@ -163,9 +169,12 @@ const OscMethodArgs: React.FC<OscMethodArgsProps> = props => {
 };
 
 const OscInvokeMethod: React.FC<MacroConfigProps> = ({updateArgs, args}) => {
-  const [methodArgs, setMethodArgs] = useState<ArgValues>();
-  if (methodArgs === undefined && typeof args.methodArgs === "object") {
-    // setMethodArgs(args.methodArgs)
+  const [methodArgs, setMethodArgs] = useState<ArgValues>(
+    args.methodArgs || {},
+  );
+  const updateArgsDebounce = useDebounce(updateArgs, 250);
+  if (typeof args.methodArgs !== "object") {
+    updateArgs("methodArgs", {});
   }
 
   return (
@@ -173,7 +182,6 @@ const OscInvokeMethod: React.FC<MacroConfigProps> = ({updateArgs, args}) => {
       <OscDeviceSelection
         deviceId={args.deviceId}
         onChange={(id, dictionary) => {
-          //setDictionaryId(dictionary);
           updateArgs("deviceId", id);
         }}
       />
@@ -181,16 +189,18 @@ const OscInvokeMethod: React.FC<MacroConfigProps> = ({updateArgs, args}) => {
         enabled={args.deviceId !== undefined}
         dictionaryId={"qlab"}
         methodId={args.methodId}
-        onChange={id => updateArgs("methodId", id)}
+        onChange={id => {
+          updateArgs("methodId", id);
+        }}
       />
 
       <OscMethodArgs
+        enabled={args.methodId !== undefined}
         methodId={args.methodId}
         args={methodArgs || {}}
         updateArgs={newArgs => {
-          console.log(newArgs);
-          setMethodArgs(newArgs);
-          // updateArgs("methodArgs", newArgs)
+          setMethodArgs({...newArgs});
+          updateArgsDebounce("methodArgs", newArgs);
         }}
       />
     </div>
