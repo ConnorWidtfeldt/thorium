@@ -1,3 +1,0 @@
-mutation OscDeviceDuplicate($name: String!, $original: ID!) {
-  oscDeviceDuplicate(name: $name, original: $original)
-}

@@ -1,0 +1,3 @@
+mutation OscDeviceAdd($device: OscDeviceConfig!) {
+  oscDeviceAdd(device: $device)
+}

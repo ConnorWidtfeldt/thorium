@@ -23,7 +23,7 @@ App.on(
       .methods.find(m => m.id === methodId);
     if (method === undefined) return;
 
-    const oscClient = new Client(device.address, device.port);
+    const oscClient = new Client(device.host, device.port);
     // @ts-ignore
     oscClient.send(method.message(methodArgs), () => {
       console.log("Message Sent");

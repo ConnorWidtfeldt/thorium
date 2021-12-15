@@ -10,19 +10,14 @@ const schema = gql`
   type OscDevice {
     id: ID!
     name: String!
-    dictionary: OscDictionary!
-    address: String!
+    host: String!
     port: Int!
-  }
-  input OscDeviceInput {
-    id: ID
-    name: String!
-    dictionary: ID!
   }
 
   input OscDeviceConfig {
+    id: ID
     name: String
-    address: String
+    host: String
     port: Int
   }
 
@@ -64,12 +59,9 @@ const schema = gql`
     oscMethodValidation(id: ID!, args: JSON!): JSON!
   }
   extend type Mutation {
-    oscDeviceCreate(device: OscDeviceInput!): ID
-    oscDeviceRemove(id: ID!): Boolean
-    oscDeviceDuplicate(name: String!, original: ID!): ID
-    oscDeviceConfigure(id: ID!, config: OscDeviceConfig!): Boolean
-
-    oscDictionaryCreate(dictionary: OscDictionaryInput!): ID
+    oscDeviceAdd(device: OscDeviceConfig!): ID
+    oscDeviceDelete(id: ID!): Boolean
+    oscDeviceEdit(id: ID!, config: OscDeviceConfig!): Boolean
 
     """
     Macro: OSC: Invoke Method
@@ -80,12 +72,6 @@ const schema = gql`
     oscDevices: [OscDevice!]!
   }
 `;
-
-const getDevices = () =>
-  App.oscDevices.map(({dictionary: dictionaryId, ...device}) => ({
-    ...device,
-    dictionary: getDictionary(dictionaryId),
-  }));
 
 interface Method extends OSC.OscMethod {
   path: string;
@@ -119,7 +105,7 @@ const createMethodArgSchema = (method: OSC.OscMethod<any>) => {
 const resolver = {
   Query: {
     oscDevice(_, {id}) {
-      return getDevices().find(device => device.id === id);
+      return App.oscDevices.find(device => device.id === id);
     },
     oscDictionaries() {
       return getDictionaries();
@@ -150,51 +136,34 @@ const resolver = {
     },
   },
   Mutation: {
-    oscDeviceCreate(_, {device}) {
+    oscDeviceAdd(_, {device}) {
+      const exists = App.oscDevices.find(d => d.id === device.id);
+      if (exists) return null;
       const oscDevice = new OscDevice(device);
       App.oscDevices.push(oscDevice);
       pubsub.publish("oscDevices", App.oscDevices);
       return oscDevice.id;
     },
-    oscDeviceRemove(_, {id}) {
-      const exists = App.oscDevices.find(device => device.id === id);
+    oscDeviceDelete(_, {id}) {
+      const exists = App.oscDevices.find(d => d.id === id);
       if (!exists) return false;
-      App.oscDevices = App.oscDevices.filter(device => device.id !== id);
+      App.oscDevices = App.oscDevices.filter(d => d.id !== id);
       pubsub.publish("oscDevices", App.oscDevices);
       return true;
     },
-    oscDeviceDuplicate(_, {name, original}) {
-      const originalDevice = App.oscDevices.find(
-        device => device.id === original,
-      );
-      if (!originalDevice) return null;
-
-      const duplicateNameCheck =
-        App.oscDevices.find(device => device.name === name) !== undefined;
-      if (duplicateNameCheck) return null;
-
-      const duplicateDevice = new OscDevice({
-        ...originalDevice,
-        name,
-        id: null,
-      });
-      App.oscDevices.push(duplicateDevice);
-      pubsub.publish("oscDevices", App.oscDevices);
-      return duplicateDevice.id;
-    },
-    oscDeviceConfigure(_, {id, config}) {
+    oscDeviceEdit(_, {id, config}) {
       const device = App.oscDevices.find(d => d.id === id);
       if (!device) return false;
-
       if (config.name) device.setName(config.name);
-      if (config.address) device.setAddress(config.address);
+      if (config.host) device.setHost(config.host);
       if (config.port) device.setPort(config.port);
+      pubsub.publish("oscDevices", App.oscDevices);
       return true;
     },
   },
   Subscription: {
     oscDevices: {
-      resolve: () => getDevices(),
+      resolve: () => App.oscDevices,
       subscribe: () => {
         const id = uuid.v4();
         process.nextTick(() => {

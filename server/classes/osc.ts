@@ -6,16 +6,19 @@ export class OscDevice {
   name: string;
   dictionary: string;
 
-  address: string;
+  host: string;
   port: number;
 
   constructor(params: Partial<OscDevice> = {}) {
-    this.id = params.id || uuid.v4();
     this.name = params.name || "OSC Device";
+    this.id = this.name
+      .replace(" ", "-")
+      .replace(/[^a-zA-Z0-9-_]/, "-")
+      .toLowerCase();
     this.dictionary = params.dictionary;
 
-    this.address = params.address || "127.0.0.1";
-    this.port = params.port || 1337;
+    this.host = params.host || "127.0.0.1";
+    this.port = params.port || 9001;
   }
 
   setName(name: string) {
@@ -24,8 +27,8 @@ export class OscDevice {
   setDictionary(dictionary: string) {
     this.dictionary = dictionary;
   }
-  setAddress(address: string) {
-    this.address = address;
+  setHost(host: string) {
+    this.host = host;
   }
   setPort(port: number) {
     this.port = port;

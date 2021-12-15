@@ -1,166 +1,144 @@
-import React, {useState} from "react";
+import React, {useState, useEffect, useRef} from "react";
 import {MacroConfigProps} from "helpers/genericTypes";
-import {Input, Label} from "reactstrap";
-
-import {useDebounce} from "../../helpers/useDebounce";
+import {Input, Label, Button} from "reactstrap";
+import {FaCheck, FaTimes} from "react-icons/fa";
 
 import {
-  OscDevice,
-  OscMethod,
   useOscDevicesSubscription,
-  useOscMethodArgsQuery,
   useOscMethodsQuery,
-  useOscMethodValidationQuery,
+  useOscMethodArgsQuery,
+  useOscMethodValidationLazyQuery,
 } from "generated/graphql";
 
-const UNSELECTED_VALUE = "_unselected";
-
-interface OscDeviceSelectionProps {
-  deviceId?: string;
-  onChange: (deviceId?: string, dictionaryId?: string) => void;
-}
-const OscDeviceSelection: React.FC<OscDeviceSelectionProps> = props => {
-  const {data} = useOscDevicesSubscription();
-  const devices = (data?.oscDevices || []) as OscDevice[];
-
-  const getDeviceDictionaryId = (deviceId?: string) => {
-    return devices.find(device => device.id === deviceId)?.dictionary?.id;
-  };
-
-  return (
-    <>
-      <Label for="device">Device:</Label>
-      <Input
-        name="device"
-        type="select"
-        value={props.deviceId || UNSELECTED_VALUE}
-        onChange={({target}) =>
-          props.onChange(target.value, getDeviceDictionaryId(target.value))
-        }
-      >
-        <option disabled value={UNSELECTED_VALUE}>
-          Select a Device
-        </option>
-        {devices.map(device => (
-          <option value={device.id} key={device.id}>
-            {device.name}
-          </option>
-        ))}
-      </Input>
-    </>
-  );
-};
-
-interface OscMethodSelectionProps {
-  enabled: boolean;
-  dictionaryId?: string;
-  methodId?: string;
-  onChange: (methodId?: string) => void;
-}
-const OscMethodSelection: React.FC<OscMethodSelectionProps> = props => {
-  const {data} = useOscMethodsQuery({
-    variables: {dictionary: props.dictionaryId},
-  });
-  const methods = (data?.oscMethods || []) as OscMethod[];
-
-  return (
-    <>
-      <Label for="method">Method:</Label>
-      <Input
-        name="method"
-        type="select"
-        disabled={!props.enabled}
-        value={props.methodId || UNSELECTED_VALUE}
-        onChange={({target}) => props.onChange(target.value)}
-      >
-        <option disabled value={UNSELECTED_VALUE}>
-          Select a Method
-        </option>
-        {methods.map((method: OscMethod) => (
-          <option value={method.id} key={method.id}>
-            {method.name}
-          </option>
-        ))}
-      </Input>
-    </>
-  );
-};
-
-interface OscArgProps<T> {
+interface ArgProps<T> {
   key: string;
   name: string;
   value?: T;
   onChange: (value: T) => void;
 
   valid: boolean;
+  invalid: boolean;
   feedback?: string;
 }
-const StringArg: React.FC<OscArgProps<string>> = props => (
+const StringArg: React.FC<ArgProps<string>> = props => (
   <div key={props.key}>
-    <Label name={"arg_" + props.key} type="text">
+    <Label type="text" className="oscArgLabel">
       <span>{props.name}:</span>
       {props.feedback && (
         <span className="oscArgFeedback">{props.feedback}</span>
       )}
     </Label>
     <Input
-      name={"arg_" + props.key}
       type="text"
+      className="oscArgValue"
       value={props.value || ""}
-      invalid={!props.valid}
+      valid={props.valid}
+      invalid={props.invalid}
       onChange={({target}) => props.onChange(target.value)}
     ></Input>
   </div>
 );
 
-const argComponent: {[key: string]: React.FC<OscArgProps<any>>} = {
+const argComponent: {[key: string]: React.FC<ArgProps<any>>} = {
   string: StringArg,
 };
-
 interface ArgValues {
   [key: string]: any;
 }
 
-interface OscMethodArgsProps {
-  enabled: boolean;
+interface MethodArgsProps {
   methodId: string;
   args: ArgValues;
   updateArgs: (ags: ArgValues) => void;
 }
-const OscMethodArgs: React.FC<OscMethodArgsProps> = props => {
-  const {data} = useOscMethodArgsQuery({
+const MethodArgs: React.FC<MethodArgsProps> = props => {
+  const [values, setValues] = useState<ArgValues>({});
+
+  const {data: methodArgsData} = useOscMethodArgsQuery({
     variables: {
       methodId: props.methodId,
     },
   });
-  const methodArgs = data?.oscMethodArgs;
+  const methodArgs = methodArgsData?.oscMethodArgs ?? [];
 
-  const {data: validationData} = useOscMethodValidationQuery({
-    variables: {
-      id: props.methodId,
-      args: props.args,
-    },
-  });
+  const [
+    validate,
+    {data: validationData, loading: validationLoading},
+  ] = useOscMethodValidationLazyQuery();
   const validation = validationData?.oscMethodValidation || {};
-
-  if (!props.enabled) {
-    return <h6>Select a device and method to continue</h6>;
+  let isValid = true;
+  for (const argValidation of Object.values(validation)) {
+    if (argValidation !== true) isValid = false;
+    break;
   }
+
+  useEffect(() => {
+    setValues(props.args);
+    validate({
+      variables: {
+        id: props.methodId,
+        args: props.args,
+      },
+    });
+  }, [props.args, props.methodId, validate]);
+
+  const handleSave = () => {
+    props.updateArgs(values);
+  };
+  const handleReset = () => {
+    props.updateArgs({});
+  };
+
+  const hasChanged = props.args !== values;
+  const changedValues: any = {};
+  for (const [argKey, argValue] of Object.entries(values)) {
+    changedValues[argKey] = props.args[argKey] !== argValue;
+  }
+
+  const updateValue = (key: string, value: any) => {
+    let newValues: any = {};
+    newValues[key] = value;
+    setValues({...values, ...newValues});
+    validate({
+      variables: {
+        id: props.methodId,
+        args: newValues,
+      },
+    });
+  };
+
+  const canSave = isValid && hasChanged && !validationLoading;
 
   return (
     <fieldset>
-      <legend>Arguments</legend>
+      <legend>
+        <span>Arguments</span>
+        <div className="oscLegendButtons">
+          <Button
+            className="oscLegendButton bg-success"
+            disabled={!canSave}
+            onClick={handleSave}
+          >
+            <FaCheck />
+            Save
+          </Button>
+          <Button className="oscLegendButton bg-danger" onClick={handleReset}>
+            <FaTimes />
+            Reset
+          </Button>
+        </div>
+      </legend>
       {methodArgs?.map(arg =>
         argComponent[arg.type]({
           key: arg.key,
           name: arg.name,
-          value: props.args[arg.key],
-          onChange: value => {
-            let newValues = props.args;
-            newValues[arg.key] = value;
-            props.updateArgs(newValues);
-          },
-          valid: validation[arg.key] === true,
+          value: values[arg.key],
+          onChange: value => updateValue(arg.key, value),
+          valid:
+            !validationLoading &&
+            validation[arg.key] === true &&
+            changedValues[arg.key],
+          invalid: !validationLoading && validation[arg.key] !== true,
           feedback: validation[arg.key]?.message,
         }),
       )}
@@ -169,40 +147,61 @@ const OscMethodArgs: React.FC<OscMethodArgsProps> = props => {
 };
 
 const OscInvokeMethod: React.FC<MacroConfigProps> = ({updateArgs, args}) => {
-  const [methodArgs, setMethodArgs] = useState<ArgValues>(
-    args.methodArgs || {},
-  );
-  const updateArgsDebounce = useDebounce(updateArgs, 250);
-  if (typeof args.methodArgs !== "object") {
-    updateArgs("methodArgs", {});
-  }
+  const {data: devicesData} = useOscDevicesSubscription();
+  const devices = devicesData?.oscDevices || [];
+  const {data: dictionariesData} = useOscMethodsQuery();
+  const dictionaries = dictionariesData?.oscDictionaries || [];
 
   return (
     <div className="oscConfig">
-      <OscDeviceSelection
-        deviceId={args.deviceId}
-        onChange={(id, dictionary) => {
-          updateArgs("deviceId", id);
-        }}
-      />
-      <OscMethodSelection
-        enabled={args.deviceId !== undefined}
-        dictionaryId={"qlab"}
-        methodId={args.methodId}
-        onChange={id => {
-          updateArgs("methodId", id);
-        }}
-      />
+      <Label for="device">Device</Label>
+      <Input
+        name="device"
+        type="select"
+        value={args.deviceId || ""}
+        onChange={({target}) => updateArgs("deviceId", target.value)}
+      >
+        <option disabled value="">
+          Select a Device
+        </option>
+        {devices.map(device => (
+          <option value={device.id} key={device.id}>
+            {device.name}
+          </option>
+        ))}
+      </Input>
 
-      <OscMethodArgs
-        enabled={args.methodId !== undefined}
-        methodId={args.methodId}
-        args={methodArgs || {}}
-        updateArgs={newArgs => {
-          setMethodArgs({...newArgs});
-          updateArgsDebounce("methodArgs", newArgs);
-        }}
-      />
+      <Label for="method">Method</Label>
+      <Input
+        name="method"
+        type="select"
+        disabled={args.deviceId === undefined}
+        value={args.methodId || ""}
+        onChange={({target}) => updateArgs("methodId", target.value)}
+      >
+        <option disabled value="">
+          Select a Method
+        </option>
+        {dictionaries.map(dictionary => (
+          <optgroup label={dictionary.name} key={dictionary.id}>
+            {dictionary.methods.map(method => (
+              <option value={method.id} key={method.id}>
+                {method.name}
+              </option>
+            ))}
+          </optgroup>
+        ))}
+      </Input>
+
+      {args.methodId && (
+        <MethodArgs
+          methodId={args.methodId}
+          args={args.methodArgs || {}}
+          updateArgs={newArgs => {
+            updateArgs("methodArgs", newArgs);
+          }}
+        />
+      )}
     </div>
   );
 };

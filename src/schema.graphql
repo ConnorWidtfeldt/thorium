@@ -2889,11 +2889,9 @@ type Mutation {
   """Macro: Tasks: Activate Task Flow"""
   taskFlowActivate(id: ID!, simulatorId: ID!): String
   taskFlowAdvance(simulatorId: ID!): String
-  oscDeviceCreate(device: OscDeviceInput!): ID
-  oscDeviceRemove(id: ID!): Boolean
-  oscDeviceDuplicate(name: String!, original: ID!): ID
-  oscDeviceConfigure(id: ID!, config: OscDeviceConfig!): Boolean
-  oscDictionaryCreate(dictionary: OscDictionaryInput!): ID
+  oscDeviceAdd(device: OscDeviceConfig!): ID
+  oscDeviceDelete(id: ID!): Boolean
+  oscDeviceEdit(id: ID!, config: OscDeviceConfig!): Boolean
 
   """Macro: OSC: Invoke Method"""
   oscInvokeMethod(deviceId: ID!, methodId: ID!): String
@@ -2999,21 +2997,15 @@ input ObjectiveInput {
 type OscDevice {
   id: ID!
   name: String!
-  dictionary: OscDictionary!
-  address: String!
+  host: String!
   port: Int!
 }
 
 input OscDeviceConfig {
-  name: String
-  address: String
-  port: Int
-}
-
-input OscDeviceInput {
   id: ID
-  name: String!
-  dictionary: ID!
+  name: String
+  host: String
+  port: Int
 }
 
 type OscDictionary {

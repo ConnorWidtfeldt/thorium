@@ -1,0 +1,3 @@
+mutation OscDeviceEdit($id: ID!, $config: OscDeviceConfig!) {
+  oscDeviceEdit(id: $id, config: $config)
+}
