@@ -119,7 +119,7 @@
         display: none;
       }
     }
-  
+
     &_summary {
       display: flex;
       flex-direction: row;
@@ -147,7 +147,30 @@
       padding: 16px 24px;
     }
     hr {
-      border-color: var(--color)
+      border-color: var(--color);
+    }
+  }
+}
+
+.oscConfig {
+  .form-control:disabled {
+    opacity: 0.5;
+  }
+  label {
+    margin-top: 0.5rem;
+    margin-bottom: 0;
+  }
+  fieldset {
+    border: 1px rgba(255, 255, 255, 0.1) solid;
+    margin-top: 0.5rem;
+    padding: 4px;
+    border-radius: 4px;
+
+    legend {
+      font-size: 1.15rem;
+      width: unset;
+      padding: 0 4px;
+      margin: 0;
     }
   }
 }

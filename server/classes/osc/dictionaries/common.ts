@@ -75,32 +75,40 @@ export const methodColor = {
   GREEN: "#49cc90",
   YELLOW: "#fca130",
   BLUE: "#61affe",
-  RED: "#f93e3e"
-}
+  RED: "#f93e3e",
+};
 
 export interface OscValidationError {
-  message: string
+  message: string;
 }
-export type OscValidationResult = true | OscValidationError
+export type OscValidationResult = true | OscValidationError;
 export type OscValidation<T> = {
   [key in keyof T]: OscValidationResult;
-}
+};
 
-export interface OscMethod<T = void> {
+interface OscMethodCommon {
   id: string;
   name: string;
-  description?: string;
   color?: string;
+}
+
+export interface OscMethod<T = void> extends OscMethodCommon {
+  description?: string;
   args: {
     [key in keyof T]: OscArgMeta<T>;
   };
   validate: (params: T) => OscValidation<T>;
   message: (params: T) => string;
 }
+export type OscGenericMethod = OscMethod<any>;
+
+export interface OscMethodGroup extends OscMethodCommon {
+  methods: OscGenericMethod[];
+}
 
 export interface OscDictionary {
   id: string;
   name: string;
   description?: string;
-  methods: OscMethod<any>[];
+  methods: OscMethodGroup[];
 }

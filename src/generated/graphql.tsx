@@ -143,6 +143,8 @@ export type Query = {
   oscDevice?: Maybe<OscDevice>;
   oscDictionaries: Array<OscDictionary>;
   oscDictionary?: Maybe<OscDictionary>;
+  oscMethods: Array<OscMethod>;
+  oscMethodArgs: Array<OscMethodArgs>;
 };
 
 
@@ -701,6 +703,16 @@ export type QueryOscDeviceArgs = {
 
 export type QueryOscDictionaryArgs = {
   id: Scalars['ID'];
+};
+
+
+export type QueryOscMethodsArgs = {
+  dictionary?: Maybe<Scalars['ID']>;
+};
+
+
+export type QueryOscMethodArgsArgs = {
+  methodId: Scalars['ID'];
 };
 
 export type Mutation = {
@@ -6575,7 +6587,6 @@ export type MutationOscDictionaryCreateArgs = {
 export type MutationOscInvokeMethodArgs = {
   deviceId: Scalars['ID'];
   methodId: Scalars['ID'];
-  args?: Maybe<Array<OscArgInput>>;
 };
 
 export type Subscription = {
@@ -10827,6 +10838,7 @@ export type OscMethod = {
   __typename?: 'OscMethod';
   id: Scalars['String'];
   name: Scalars['String'];
+  group?: Maybe<Scalars['String']>;
   path: Scalars['String'];
   description?: Maybe<Scalars['String']>;
   color?: Maybe<Scalars['String']>;
@@ -10835,6 +10847,13 @@ export type OscMethod = {
 export type OscArgInput = {
   key: Scalars['String'];
   value: Scalars['String'];
+};
+
+export type OscMethodArgs = {
+  __typename?: 'OscMethodArgs';
+  key: Scalars['ID'];
+  name: Scalars['String'];
+  type: Scalars['String'];
 };
 
 /** A GraphQL Schema defines the capabilities of a GraphQL server. It exposes all available types and directives on the server, as well as the entry points for query, mutation, and subscription operations. */
@@ -11206,6 +11225,32 @@ export type MissionMacrosQuery = (
       { __typename?: 'TimelineStep' }
       & Pick<TimelineStep, 'id' | 'name'>
     )> }
+  )> }
+);
+
+export type OscMethodArgsQueryVariables = Exact<{
+  methodId: Scalars['ID'];
+}>;
+
+
+export type OscMethodArgsQuery = (
+  { __typename?: 'Query' }
+  & { oscMethodArgs: Array<(
+    { __typename?: 'OscMethodArgs' }
+    & Pick<OscMethodArgs, 'key' | 'name' | 'type'>
+  )> }
+);
+
+export type OscMethodsQueryVariables = Exact<{
+  dictionary?: Maybe<Scalars['ID']>;
+}>;
+
+
+export type OscMethodsQuery = (
+  { __typename?: 'Query' }
+  & { oscMethods: Array<(
+    { __typename?: 'OscMethod' }
+    & Pick<OscMethod, 'id' | 'group' | 'name'>
   )> }
 );
 
@@ -15267,6 +15312,40 @@ export function useMissionMacrosLazyQuery(baseOptions?: ApolloReactHooks.LazyQue
         }
 export type MissionMacrosQueryHookResult = ReturnType<typeof useMissionMacrosQuery>;
 export type MissionMacrosLazyQueryHookResult = ReturnType<typeof useMissionMacrosLazyQuery>;
+export const OscMethodArgsDocument = gql`
+    query OscMethodArgs($methodId: ID!) {
+  oscMethodArgs(methodId: $methodId) {
+    key
+    name
+    type
+  }
+}
+    `;
+export function useOscMethodArgsQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<OscMethodArgsQuery, OscMethodArgsQueryVariables>) {
+        return ApolloReactHooks.useQuery<OscMethodArgsQuery, OscMethodArgsQueryVariables>(OscMethodArgsDocument, baseOptions);
+      }
+export function useOscMethodArgsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<OscMethodArgsQuery, OscMethodArgsQueryVariables>) {
+          return ApolloReactHooks.useLazyQuery<OscMethodArgsQuery, OscMethodArgsQueryVariables>(OscMethodArgsDocument, baseOptions);
+        }
+export type OscMethodArgsQueryHookResult = ReturnType<typeof useOscMethodArgsQuery>;
+export type OscMethodArgsLazyQueryHookResult = ReturnType<typeof useOscMethodArgsLazyQuery>;
+export const OscMethodsDocument = gql`
+    query OscMethods($dictionary: ID) {
+  oscMethods(dictionary: $dictionary) {
+    id
+    group
+    name
+  }
+}
+    `;
+export function useOscMethodsQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<OscMethodsQuery, OscMethodsQueryVariables>) {
+        return ApolloReactHooks.useQuery<OscMethodsQuery, OscMethodsQueryVariables>(OscMethodsDocument, baseOptions);
+      }
+export function useOscMethodsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<OscMethodsQuery, OscMethodsQueryVariables>) {
+          return ApolloReactHooks.useLazyQuery<OscMethodsQuery, OscMethodsQueryVariables>(OscMethodsDocument, baseOptions);
+        }
+export type OscMethodsQueryHookResult = ReturnType<typeof useOscMethodsQuery>;
+export type OscMethodsLazyQueryHookResult = ReturnType<typeof useOscMethodsLazyQuery>;
 export const RemoteAssetLoadDocument = gql`
     mutation RemoteAssetLoad($folderPath: String!, $files: [RemoteAsset!]!) {
   downloadRemoteAssets(folderPath: $folderPath, files: $files)

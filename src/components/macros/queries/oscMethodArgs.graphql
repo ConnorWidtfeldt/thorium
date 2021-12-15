@@ -1,0 +1,7 @@
+query OscMethodArgs($methodId: ID!) {
+  oscMethodArgs(methodId: $methodId) {
+    key
+    name
+    type
+  }
+}
