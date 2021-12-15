@@ -90,12 +90,9 @@ class Events extends EventEmitter {
   port: number = process.env.NODE_ENV === "production" ? 4444 : 3001;
 
   // osc
-  oscDevices: ClassesImport.OscDevice[] = [];
-  oscDictionaries: ClassesImport.OscDictionary[] = [
-    new ClassesImport.OscDictionary({
-      name: "Sample Dictionary",
-      description: "Just here as a sample",
-    }),
+  oscDevices: ClassesImport.OSC.OscDevice[] = [];
+  oscDictionaries: ClassesImport.OSC.OscDictionary[] = [
+    ClassesImport.OSC.QLab
   ];
 
   events: any[] = [];

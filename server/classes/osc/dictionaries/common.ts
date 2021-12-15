@@ -71,18 +71,36 @@ export const arg = {
   infinity: () => ({type: OscType.Infinity}),
 };
 
+export const methodColor = {
+  GREEN: "#49cc90",
+  YELLOW: "#fca130",
+  BLUE: "#61affe",
+  RED: "#f93e3e"
+}
+
+export interface OscValidationError {
+  message: string
+}
+export type OscValidationResult = true | OscValidationError
+export type OscValidation<T> = {
+  [key in keyof T]: OscValidationResult;
+}
+
 export interface OscMethod<T = void> {
   id: string;
   name: string;
   description?: string;
+  color?: string;
   args: {
     [key in keyof T]: OscArgMeta<T>;
   };
-  message: (params: T) => OscMessage;
+  validate: (params: T) => OscValidation<T>;
+  message: (params: T) => string;
 }
 
 export interface OscDictionary {
   id: string;
   name: string;
+  description?: string;
   methods: OscMethod<any>[];
 }

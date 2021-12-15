@@ -76,5 +76,6 @@ export * from "./sensors";
 export * from "./timeline";
 export * from "./dmx";
 export * from "./lighting";
+export * from "./osc";
 export {default as taskFlowActivate} from "./taskFlowActivate";
 export {default as documentAdd} from "./documentAdd";

@@ -281,7 +281,7 @@ export default {
         },
         {
           name: "addCommandLineToSimulator",
-          description: "Macro: Command Line: Add command line",
+          description: "Macro: Command Line: Add command line 2",
           __typename: "__Field",
         },
         {

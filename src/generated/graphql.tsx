@@ -140,9 +140,9 @@ export type Query = {
   dmxConfig?: Maybe<DmxConfig>;
   dmxConfigs: Array<DmxConfig>;
   taskFlows: Array<TaskFlow>;
-  oscDevices: Array<OscDevice>;
   oscDevice?: Maybe<OscDevice>;
   oscDictionaries: Array<OscDictionary>;
+  oscDictionary?: Maybe<OscDictionary>;
 };
 
 
@@ -695,6 +695,11 @@ export type QueryTaskFlowsArgs = {
 
 
 export type QueryOscDeviceArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type QueryOscDictionaryArgs = {
   id: Scalars['ID'];
 };
 
@@ -1781,6 +1786,8 @@ export type Mutation = {
   oscDeviceRemove?: Maybe<Scalars['Boolean']>;
   oscDeviceDuplicate?: Maybe<Scalars['ID']>;
   oscDictionaryCreate?: Maybe<Scalars['ID']>;
+  /** Macro: OSC: Invoke Method */
+  oscInvokeMethod?: Maybe<Scalars['String']>;
 };
 
 
@@ -6554,6 +6561,13 @@ export type MutationOscDictionaryCreateArgs = {
   dictionary: OscDictionaryInput;
 };
 
+
+export type MutationOscInvokeMethodArgs = {
+  deviceId: Scalars['ID'];
+  methodId: Scalars['ID'];
+  args?: Maybe<Array<OscArgInput>>;
+};
+
 export type Subscription = {
   __typename?: 'Subscription';
   _empty?: Maybe<Scalars['String']>;
@@ -6668,7 +6682,6 @@ export type Subscription = {
   dmxConfigs: Array<DmxConfig>;
   taskFlows: Array<TaskFlow>;
   oscDevices: Array<OscDevice>;
-  oscDictionaries: Array<OscDictionary>;
 };
 
 
@@ -10792,11 +10805,26 @@ export type OscDictionary = {
   id: Scalars['ID'];
   name: Scalars['String'];
   description?: Maybe<Scalars['String']>;
+  methods: Array<OscMethod>;
 };
 
 export type OscDictionaryInput = {
   name: Scalars['String'];
   description?: Maybe<Scalars['String']>;
+};
+
+export type OscMethod = {
+  __typename?: 'OscMethod';
+  id: Scalars['String'];
+  name: Scalars['String'];
+  path: Scalars['String'];
+  description?: Maybe<Scalars['String']>;
+  color?: Maybe<Scalars['String']>;
+};
+
+export type OscArgInput = {
+  key: Scalars['String'];
+  value: Scalars['String'];
 };
 
 /** A GraphQL Schema defines the capabilities of a GraphQL server. It exposes all available types and directives on the server, as well as the entry points for query, mutation, and subscription operations. */
@@ -13532,14 +13560,31 @@ export type OscDevicesSubscription = (
   )> }
 );
 
-export type OscDictionariesSubscriptionVariables = Exact<{ [key: string]: never; }>;
+export type OscDictionariesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type OscDictionariesSubscription = (
-  { __typename?: 'Subscription' }
+export type OscDictionariesQuery = (
+  { __typename?: 'Query' }
   & { oscDictionaries: Array<(
     { __typename?: 'OscDictionary' }
     & Pick<OscDictionary, 'id' | 'name' | 'description'>
+  )> }
+);
+
+export type OscDictionaryQueryVariables = Exact<{
+  id: Scalars['ID'];
+}>;
+
+
+export type OscDictionaryQuery = (
+  { __typename?: 'Query' }
+  & { oscDictionary?: Maybe<(
+    { __typename?: 'OscDictionary' }
+    & Pick<OscDictionary, 'id' | 'name' | 'description'>
+    & { methods: Array<(
+      { __typename?: 'OscMethod' }
+      & Pick<OscMethod, 'id' | 'name' | 'description' | 'path' | 'color'>
+    )> }
   )> }
 );
 
@@ -17530,7 +17575,7 @@ export function useOscDevicesSubscription(baseOptions?: ApolloReactHooks.Subscri
       }
 export type OscDevicesSubscriptionHookResult = ReturnType<typeof useOscDevicesSubscription>;
 export const OscDictionariesDocument = gql`
-    subscription OscDictionaries {
+    query OscDictionaries {
   oscDictionaries {
     id
     name
@@ -17538,10 +17583,38 @@ export const OscDictionariesDocument = gql`
   }
 }
     `;
-export function useOscDictionariesSubscription(baseOptions?: ApolloReactHooks.SubscriptionHookOptions<OscDictionariesSubscription, OscDictionariesSubscriptionVariables>) {
-        return ApolloReactHooks.useSubscription<OscDictionariesSubscription, OscDictionariesSubscriptionVariables>(OscDictionariesDocument, baseOptions);
+export function useOscDictionariesQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<OscDictionariesQuery, OscDictionariesQueryVariables>) {
+        return ApolloReactHooks.useQuery<OscDictionariesQuery, OscDictionariesQueryVariables>(OscDictionariesDocument, baseOptions);
       }
-export type OscDictionariesSubscriptionHookResult = ReturnType<typeof useOscDictionariesSubscription>;
+export function useOscDictionariesLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<OscDictionariesQuery, OscDictionariesQueryVariables>) {
+          return ApolloReactHooks.useLazyQuery<OscDictionariesQuery, OscDictionariesQueryVariables>(OscDictionariesDocument, baseOptions);
+        }
+export type OscDictionariesQueryHookResult = ReturnType<typeof useOscDictionariesQuery>;
+export type OscDictionariesLazyQueryHookResult = ReturnType<typeof useOscDictionariesLazyQuery>;
+export const OscDictionaryDocument = gql`
+    query OscDictionary($id: ID!) {
+  oscDictionary(id: $id) {
+    id
+    name
+    description
+    methods {
+      id
+      name
+      description
+      path
+      color
+    }
+  }
+}
+    `;
+export function useOscDictionaryQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<OscDictionaryQuery, OscDictionaryQueryVariables>) {
+        return ApolloReactHooks.useQuery<OscDictionaryQuery, OscDictionaryQueryVariables>(OscDictionaryDocument, baseOptions);
+      }
+export function useOscDictionaryLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<OscDictionaryQuery, OscDictionaryQueryVariables>) {
+          return ApolloReactHooks.useLazyQuery<OscDictionaryQuery, OscDictionaryQueryVariables>(OscDictionaryDocument, baseOptions);
+        }
+export type OscDictionaryQueryHookResult = ReturnType<typeof useOscDictionaryQuery>;
+export type OscDictionaryLazyQueryHookResult = ReturnType<typeof useOscDictionaryLazyQuery>;
 export const AddClientDocument = gql`
     mutation AddClient($id: ID!, $client: SetClientInput!) {
   addClientToSet(id: $id, client: $client)

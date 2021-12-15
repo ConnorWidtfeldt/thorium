@@ -1,4 +1,4 @@
-subscription OscDictionaries {
+query OscDictionaries {
   oscDictionaries {
     id
     name
