@@ -292,21 +292,21 @@ class ReactApolloVisitor extends visitorPluginCommon.ClientSideBaseVisitor {
     const hookResults = [
       `export type ${operationName}HookResult = ReturnType<typeof use${operationName}>;`,
     ];
-    // if (operationType === "Query") {
-    //   const lazyOperationName = this.convertName(node.name.value, {
-    //     suffix: pascalCase.pascalCase("LazyQuery"),
-    //     useTypesPrefix: false,
-    //   });
-    //   hookFns.push(`export function use${lazyOperationName}(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<${operationResultType}, ${operationVariablesTypes}>) {
-    //       return ApolloReactHooks.useLazyQuery<${operationResultType}, ${operationVariablesTypes}>(${this.getDocumentNodeVariable(
-    //     node,
-    //     documentVariableName,
-    //   )}, baseOptions);
-    //     }`);
-    //   hookResults.push(
-    //     `export type ${lazyOperationName}HookResult = ReturnType<typeof use${lazyOperationName}>;`,
-    //   );
-    // }
+    if (operationType === "Query") {
+      const lazyOperationName = this.convertName(node.name.value, {
+        suffix: pascalCase.pascalCase("LazyQuery"),
+        useTypesPrefix: false,
+      });
+      hookFns.push(`export function use${lazyOperationName}(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<${operationResultType}, ${operationVariablesTypes}>) {
+          return ApolloReactHooks.useLazyQuery<${operationResultType}, ${operationVariablesTypes}>(${this.getDocumentNodeVariable(
+        node,
+        documentVariableName,
+      )}, baseOptions);
+        }`);
+      hookResults.push(
+        `export type ${lazyOperationName}HookResult = ReturnType<typeof use${lazyOperationName}>;`,
+      );
+    }
     return [...hookFns, ...hookResults].join("\n");
   }
   _getHookSuffix(name, operationType) {

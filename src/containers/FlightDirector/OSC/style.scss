@@ -1,8 +1,21 @@
-.oscAdmin {
-  .oscNav {
-    margin-top: 8px;
-    padding: 8px 4px;
+.osc {
+  // namespace
+  overflow-y: auto;
+  height: 100%;
+
+  .oscCard {
     display: flex;
+    flex-direction: column;
+    min-width: 0;
+    border-radius: 0.25rem;
+    backdrop-filter: blur(20px);
+    border: solid 1px rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.02);
+  }
+  .oscNav {
+    margin: 8px 0;
+    display: flex;
+    min-height: 40px;
     justify-content: space-between;
 
     &_heading {
@@ -15,14 +28,71 @@
       }
     }
   }
+  .oscLoadingPlaceholder {
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+    .oscSpinner {
+      width: 4rem;
+      height: 4rem;
+    }
+  }
 
-  .oscDeviceItem {
-    backdrop-filter: blur(20px);
+  .oscListItem {
+    &-enter {
+      opacity: 0;
+    }
+    &-enter-active {
+      opacity: 1;
+      transition: opacity 300ms ease-in;
+    }
+    &-exit {
+      opacity: 1;
+    }
+    &-exit-active {
+      opacity: 0;
+      transition: opacity 300ms ease-in;
+    }
+  }
+
+  .oscDevices {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    grid-auto-rows: minmax(100px, auto);
   }
   .oscDeviceActions {
     width: 100%;
     .btn {
       flex-basis: 0;
     }
+  }
+
+  .oscDictionaries {
+    display: flex;
+  }
+
+  .oscDictionaryList {
+    position: sticky;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 0;
+    margin-right: 8px;
+    width: 350px;
+  }
+  .oscDictionaryItem {
+    margin-bottom: 8px;
+    cursor: pointer;
+    &:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+    &.selected {
+      background: rgba(255, 255, 255, 0.15);
+    }
+  }
+
+  .oscDictionaryMethods {
+    flex-grow: 1;
+    height: 2000px;
   }
 }

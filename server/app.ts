@@ -91,6 +91,12 @@ class Events extends EventEmitter {
 
   // osc
   oscDevices: ClassesImport.OscDevice[] = [];
+  oscDictionaries: ClassesImport.OscDictionary[] = [
+    new ClassesImport.OscDictionary({
+      name: "Sample Dictionary",
+      description: "Just here as a sample",
+    }),
+  ];
 
   events: any[] = [];
   mutations: {[key: string]: Function} = {};
@@ -163,12 +169,7 @@ class Events extends EventEmitter {
         );
         return;
       }
-      if (key === "oscDevices" && snapshot.oscDevices) {
-        this.oscDevices = snapshot.oscDevices.map(
-          m => new ClassesImport.OscDevice(m),
-        );
-        return;
-      }
+      if (key === "oscDictionaries") return;
       if (snapshot[key] instanceof Array) {
         snapshot[key].forEach((obj: any) => {
           if (Object.keys(obj).length !== 0) {

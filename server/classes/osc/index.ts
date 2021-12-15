@@ -1,4 +1,2 @@
-// import { QLab } from "./dictionaries";
-// export * from "./dictionaries/common";
-
 export * from "./OscDevice";
+export * from "./OscDictionary";
