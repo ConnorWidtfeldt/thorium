@@ -3,8 +3,13 @@ import uuid from "uuid";
 import {pubsub} from "../helpers/subscriptionManager";
 
 import App from "../app";
-import {OscDevice} from "../classes/osc";
-import { generateMethodPath } from "../helpers/osc";
+import {
+  OscDevice,
+  OscDictionary,
+  OscMethod,
+  OscMethodGroup,
+} from "../classes/osc";
+import {generateMethodPath} from "../helpers/osc";
 
 const schema = gql`
   type OscDevice {
@@ -31,6 +36,7 @@ const schema = gql`
   type OscMethod {
     id: String!
     name: String!
+    group: String
     path: String!
     description: String
 
@@ -42,11 +48,21 @@ const schema = gql`
     value: String!
   }
 
+  type OscMethodArgs {
+    key: ID!
+    name: String!
+    type: String!
+  }
+
   extend type Query {
     oscDevice(id: ID!): OscDevice
 
     oscDictionaries: [OscDictionary!]!
     oscDictionary(id: ID!): OscDictionary
+
+    oscMethods(dictionary: ID): [OscMethod!]!
+
+    oscMethodArgs(methodId: ID!): [OscMethodArgs!]!
   }
   extend type Mutation {
     oscDeviceCreate(device: OscDeviceInput!): ID
@@ -58,11 +74,7 @@ const schema = gql`
     """
     Macro: OSC: Invoke Method
     """
-    oscInvokeMethod(
-      deviceId: ID!
-      methodId: ID!
-      args: [OscArgInput!]
-    ): String
+    oscInvokeMethod(deviceId: ID!, methodId: ID!): String
   }
   extend type Subscription {
     oscDevices: [OscDevice!]!
@@ -75,18 +87,41 @@ const getDevices = () =>
     dictionary: getDictionary(dictionaryId),
   }));
 
-const getDictionaries = () =>
-  App.oscDictionaries.map(dictionary => ({
-    ...dictionary,
-    methods: dictionary.methods.map(method => ({
-      ...method,
-      path: generateMethodPath(method)
-    }))
-  }))
+const flattenMethodGroup = group =>
+  group.methods.map(method => ({
+    ...method,
+    id: `${group.id}.${method.id}`,
+    group: group.name,
+    color: method.color || group.color,
+  }));
 
+const flattenDictionary = dictionary => ({
+  ...dictionary,
+  methods: dictionary.methods.flatMap(group =>
+    flattenMethodGroup({
+      ...group,
+      id: `${dictionary.id}.${group.id}`,
+    }),
+  ),
+});
+
+const getDictionaries = () =>
+  App.oscDictionaries.flatMap(dictionary => flattenDictionary(dictionary));
 const getDictionary = (id: string) =>
-  getDictionaries().find(dictionary => dictionary.id === id)
-  
+  getDictionaries().find(dictionary => dictionary.id === id);
+
+const getMethods = () =>
+  getDictionaries().flatMap(dictionary => dictionary.methods);
+const getMethod = (methodId: string) =>
+  getMethods().find(method => method.id === methodId);
+
+const createMethodArgSchema = (method: OscMethod<any>) => {
+  return Object.entries(method.args).map(([key, arg]) => ({
+    key,
+    name: arg.name,
+    type: arg.type,
+  }));
+};
 
 const resolver = {
   Query: {
@@ -94,10 +129,28 @@ const resolver = {
       return getDevices().find(device => device.id === id);
     },
     oscDictionaries() {
-      return getDictionaries()
+      return getDictionaries();
     },
     oscDictionary(_, {id}) {
-      return getDictionary(id)
+      return getDictionary(id);
+    },
+    oscMethods(_, {dictionary}) {
+      if (dictionary !== undefined) {
+        const dict = getDictionary(dictionary);
+        if (dict) {
+          return dict.methods;
+        } else {
+          return [];
+        }
+      }
+      return getMethods();
+    },
+    oscMethodArgs(_, {methodId}) {
+      const method = getMethod(methodId);
+      if (method === undefined) {
+        return [];
+      }
+      return createMethodArgSchema(method);
     },
   },
   Mutation: {

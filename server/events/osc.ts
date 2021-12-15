@@ -1,7 +1,17 @@
 import App from "../app";
 
-App.on("oscInvokeMethod", (data) => {
-  console.log(data)
+interface MethodArgs {
+  [key: string]: any;
+}
+interface OscInvokeMethodParams {
+  deviceId: string;
+  methodId: string;
+  methodArgs: MethodArgs;
+}
 
-  console.log("INVOKE METHOD!!!")
-})
+App.on(
+  "oscInvokeMethod",
+  ({deviceId, methodId, methodArgs}: OscInvokeMethodParams) => {
+    console.log(deviceId, methodId, methodArgs);
+  },
+);

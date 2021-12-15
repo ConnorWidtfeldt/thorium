@@ -2895,7 +2895,7 @@ type Mutation {
   oscDictionaryCreate(dictionary: OscDictionaryInput!): ID
 
   """Macro: OSC: Invoke Method"""
-  oscInvokeMethod(deviceId: ID!, methodId: ID!, args: [OscArgInput!]): String
+  oscInvokeMethod(deviceId: ID!, methodId: ID!): String
 }
 
 type NamedObject {
@@ -3026,9 +3026,16 @@ input OscDictionaryInput {
 type OscMethod {
   id: String!
   name: String!
+  group: String
   path: String!
   description: String
   color: String
+}
+
+type OscMethodArgs {
+  key: ID!
+  name: String!
+  type: String!
 }
 
 type PainPoint {
@@ -3397,6 +3404,8 @@ type Query {
   oscDevice(id: ID!): OscDevice
   oscDictionaries: [OscDictionary!]!
   oscDictionary(id: ID!): OscDictionary
+  oscMethods(dictionary: ID): [OscMethod!]!
+  oscMethodArgs(methodId: ID!): [OscMethodArgs!]!
 }
 
 type Railgun implements SystemInterface {
