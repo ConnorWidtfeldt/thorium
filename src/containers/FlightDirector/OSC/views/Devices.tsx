@@ -1,4 +1,4 @@
-import React, {useCallback, useState} from "react";
+import React, {useState} from "react";
 import {useNavigate} from "react-router-dom";
 import {
   CardBody,
@@ -23,7 +23,7 @@ import {
   useOscDeviceCreateMutation,
   useOscDeviceRemoveMutation,
   useOscDeviceDuplicateMutation,
-  useOscDictionariesSubscription,
+  useOscDictionariesQuery,
 } from "generated/graphql";
 import {CSSTransition, TransitionGroup} from "react-transition-group";
 
@@ -104,7 +104,7 @@ const AddModal: React.FC<AddModalProps> = ({
   const {
     data: dictionariesData,
     loading: dictionariesLoading,
-  } = useOscDictionariesSubscription();
+  } = useOscDictionariesQuery();
   const dictionaries = dictionariesData?.oscDictionaries;
 
   const [name, setName] = useState<string | undefined>();
@@ -260,7 +260,12 @@ export const Devices: React.FC = () => {
                 dictionary: newDevice.dictionaryId,
               },
             },
-          });
+          }).then(({data}) => {
+            const deviceId = data?.oscDeviceCreate;
+            if (deviceId) {
+              navigate(`${deviceId}/edit`)
+            }
+          })
           setIsAddingDevice(false);
         }}
       />
@@ -277,7 +282,12 @@ export const Devices: React.FC = () => {
               name: newDevice.name,
               original: copyDevice!,
             },
-          });
+          }).then(({data}) => {
+            const deviceId = data?.oscDeviceDuplicate;
+            if (deviceId) {
+              navigate(`${deviceId}/edit`)
+            }
+          })
           setCopyDevice(null);
         }}
       />

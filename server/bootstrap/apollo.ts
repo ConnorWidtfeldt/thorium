@@ -118,7 +118,7 @@ function responseForOperation(requestContext) {
       opName,
       requestContext.context,
     );
-    timeout = setTimeout(() => resolve(), 500);
+    timeout = setTimeout(() => resolve(undefined), 500);
   });
 }
 

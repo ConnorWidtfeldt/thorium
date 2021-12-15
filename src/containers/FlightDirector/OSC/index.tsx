@@ -1,5 +1,5 @@
 import React from "react";
-import {Routes, Route, Link} from "react-router-dom";
+import {Routes, Route, NavLink as Link} from "react-router-dom";
 import {Container, Nav, NavItem, NavLink} from "reactstrap";
 
 import {Device, Devices, Dictionaries, Summary} from "./views";
@@ -9,14 +9,14 @@ import "./style.scss";
 const OSC: React.FC = () => {
   return (
     <div className="osc">
-      <Container className="my-4">
+      <Container className="my-4" fluid="xl">
         <div className="mb-4">
           <h3>Open Sound Control</h3>
         </div>
 
         <Nav tabs>
           <NavItem>
-            <NavLink tag={Link} to="/config/osc">
+            <NavLink tag={Link} to="/config/osc" end>
               Summary
             </NavLink>
           </NavItem>

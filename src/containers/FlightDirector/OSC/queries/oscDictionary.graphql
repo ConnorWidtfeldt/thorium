@@ -1,0 +1,14 @@
+query OscDictionary($id: ID!) {
+  oscDictionary(id: $id) {
+    id
+    name
+    description
+    methods {
+      id
+      name
+      description
+      path
+      color
+    }
+  }
+}

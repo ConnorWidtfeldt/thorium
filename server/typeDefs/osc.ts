@@ -3,7 +3,8 @@ import uuid from "uuid";
 import {pubsub} from "../helpers/subscriptionManager";
 
 import App from "../app";
-import {OscDevice, OscDictionary} from "../classes";
+import {OscDevice} from "../classes/osc";
+import { generateMethodPath } from "../helpers/osc";
 
 const schema = gql`
   type OscDevice {
@@ -28,14 +29,24 @@ const schema = gql`
   }
 
   type OscMethod {
+    id: String!
     name: String!
+    path: String!
+    description: String
+
+    color: String
+  }
+
+  input OscArgInput {
+    key: String!
+    value: String!
   }
 
   extend type Query {
-    oscDevices: [OscDevice!]!
     oscDevice(id: ID!): OscDevice
 
     oscDictionaries: [OscDictionary!]!
+    oscDictionary(id: ID!): OscDictionary
   }
   extend type Mutation {
     oscDeviceCreate(device: OscDeviceInput!): ID
@@ -43,10 +54,18 @@ const schema = gql`
     oscDeviceDuplicate(name: String!, original: ID!): ID
 
     oscDictionaryCreate(dictionary: OscDictionaryInput!): ID
+
+    """
+    Macro: OSC: Invoke Method
+    """
+    oscInvokeMethod(
+      deviceId: ID!
+      methodId: ID!
+      args: [OscArgInput!]
+    ): String
   }
   extend type Subscription {
     oscDevices: [OscDevice!]!
-    oscDictionaries: [OscDictionary!]!
   }
 `;
 
@@ -56,19 +75,29 @@ const getDevices = () =>
     dictionary: getDictionary(dictionaryId),
   }));
 
+const getDictionaries = () =>
+  App.oscDictionaries.map(dictionary => ({
+    ...dictionary,
+    methods: dictionary.methods.map(method => ({
+      ...method,
+      path: generateMethodPath(method)
+    }))
+  }))
+
 const getDictionary = (id: string) =>
-  App.oscDictionaries.find(dictionary => dictionary.id === id);
+  getDictionaries().find(dictionary => dictionary.id === id)
+  
 
 const resolver = {
   Query: {
-    oscDevices() {
-      return getDevices();
-    },
     oscDevice(_, {id}) {
-      return App.oscDevices.find(device => device.id === id);
+      return getDevices().find(device => device.id === id);
     },
     oscDictionaries() {
-      return App.oscDictionaries;
+      return getDictionaries()
+    },
+    oscDictionary(_, {id}) {
+      return getDictionary(id)
     },
   },
   Mutation: {
@@ -104,20 +133,6 @@ const resolver = {
       pubsub.publish("oscDevices", App.oscDevices);
       return duplicateDevice.id;
     },
-
-    oscDictionaryCreate(_, {dictionary}) {
-      const oscDictionary = new OscDictionary(dictionary);
-
-      const duplicateIdCheck =
-        App.oscDictionaries.find(
-          dictionary => dictionary.id === oscDictionary.id,
-        ) !== undefined;
-      if (duplicateIdCheck) return null;
-
-      App.oscDictionaries.push(oscDictionary);
-      pubsub.publish("oscDictionaries", App.oscDictionaries);
-      return oscDictionary.id;
-    },
   },
   Subscription: {
     oscDevices: {
@@ -128,16 +143,6 @@ const resolver = {
           pubsub.publish(id, App.oscDevices);
         });
         return pubsub.asyncIterator([id, "oscDevices"]);
-      },
-    },
-    oscDictionaries: {
-      resolve: rootValue => rootValue,
-      subscribe: () => {
-        const id = uuid.v4();
-        process.nextTick(() => {
-          pubsub.publish(id, App.oscDictionaries);
-        });
-        return pubsub.asyncIterator([id, "oscDictionaries"]);
       },
     },
   },

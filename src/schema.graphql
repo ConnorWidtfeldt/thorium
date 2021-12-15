@@ -2893,6 +2893,9 @@ type Mutation {
   oscDeviceRemove(id: ID!): Boolean
   oscDeviceDuplicate(name: String!, original: ID!): ID
   oscDictionaryCreate(dictionary: OscDictionaryInput!): ID
+
+  """Macro: OSC: Invoke Method"""
+  oscInvokeMethod(deviceId: ID!, methodId: ID!, args: [OscArgInput!]): String
 }
 
 type NamedObject {
@@ -2992,6 +2995,11 @@ input ObjectiveInput {
   order: Int
 }
 
+input OscArgInput {
+  key: String!
+  value: String!
+}
+
 type OscDevice {
   id: ID!
   name: String!
@@ -3007,11 +3015,20 @@ type OscDictionary {
   id: ID!
   name: String!
   description: String
+  methods: [OscMethod!]!
 }
 
 input OscDictionaryInput {
   name: String!
   description: String
+}
+
+type OscMethod {
+  id: String!
+  name: String!
+  path: String!
+  description: String
+  color: String
 }
 
 type PainPoint {
@@ -3377,9 +3394,9 @@ type Query {
   dmxConfig(id: ID!): DMXConfig
   dmxConfigs: [DMXConfig!]!
   taskFlows(simulatorId: ID): [TaskFlow!]!
-  oscDevices: [OscDevice!]!
   oscDevice(id: ID!): OscDevice
   oscDictionaries: [OscDictionary!]!
+  oscDictionary(id: ID!): OscDictionary
 }
 
 type Railgun implements SystemInterface {
@@ -4193,7 +4210,6 @@ type Subscription {
   dmxConfigs: [DMXConfig!]!
   taskFlows(simulatorId: ID): [TaskFlow!]!
   oscDevices: [OscDevice!]!
-  oscDictionaries: [OscDictionary!]!
 }
 
 type SubspaceField implements SystemInterface {
