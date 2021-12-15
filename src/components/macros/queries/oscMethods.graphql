@@ -1,6 +1,11 @@
-query OscMethods($dictionary: ID) {
-  oscMethods(dictionary: $dictionary) {
+query OscMethods {
+  oscDictionaries {
     id
     name
+    description
+    methods {
+      id
+      name
+    }
   }
 }

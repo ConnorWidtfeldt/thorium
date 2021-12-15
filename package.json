@@ -332,7 +332,7 @@
     "babel-preset-react": "^6.24.1",
     "babel-preset-react-app": "^9.0.2",
     "bodymovin": "^4.13.0",
-    "bootstrap": "^4.3.1",
+    "bootstrap": "^4.6.1",
     "canvas": "^2.6.0",
     "centered-pan-zoom": "^2.0.0",
     "cross-env": "^7.0.0",

@@ -1,8 +1,8 @@
 import React from "react";
-import {Routes, Route, NavLink as Link} from "react-router-dom";
+import {Routes, Route, NavLink as Link, Navigate} from "react-router-dom";
 import {Container, Nav, NavItem, NavLink} from "reactstrap";
-
-import {Device, Devices, Dictionaries, Summary} from "./views";
+import {Devices} from "./Devices";
+import {Dictionaries} from "./Dictionaries";
 
 import "./style.scss";
 
@@ -16,11 +16,6 @@ const OSC: React.FC = () => {
 
         <Nav tabs>
           <NavItem>
-            <NavLink tag={Link} to="/config/osc" end>
-              Summary
-            </NavLink>
-          </NavItem>
-          <NavItem>
             <NavLink tag={Link} to="devices">
               Devices
             </NavLink>
@@ -33,12 +28,8 @@ const OSC: React.FC = () => {
         </Nav>
 
         <Routes>
-          <Route path="/" element={<Summary />} />
-
+          <Route path="" element={<Navigate replace to="devices" />} />
           <Route path="devices" element={<Devices />} />
-          <Route path="devices/:id" element={<Device />} />
-          <Route path="devices/:id/edit" element={<Device edit={true} />} />
-
           <Route path="dictionaries" element={<Dictionaries />} />
           <Route path="dictionaries/:id" element={<Dictionaries />} />
         </Routes>

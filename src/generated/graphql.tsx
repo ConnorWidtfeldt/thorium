@@ -1801,11 +1801,9 @@ export type Mutation = {
   /** Macro: Tasks: Activate Task Flow */
   taskFlowActivate?: Maybe<Scalars['String']>;
   taskFlowAdvance?: Maybe<Scalars['String']>;
-  oscDeviceCreate?: Maybe<Scalars['ID']>;
-  oscDeviceRemove?: Maybe<Scalars['Boolean']>;
-  oscDeviceDuplicate?: Maybe<Scalars['ID']>;
-  oscDeviceConfigure?: Maybe<Scalars['Boolean']>;
-  oscDictionaryCreate?: Maybe<Scalars['ID']>;
+  oscDeviceAdd?: Maybe<Scalars['ID']>;
+  oscDeviceDelete?: Maybe<Scalars['Boolean']>;
+  oscDeviceEdit?: Maybe<Scalars['Boolean']>;
   /** Macro: OSC: Invoke Method */
   oscInvokeMethod?: Maybe<Scalars['String']>;
 };
@@ -6561,30 +6559,19 @@ export type MutationTaskFlowAdvanceArgs = {
 };
 
 
-export type MutationOscDeviceCreateArgs = {
-  device: OscDeviceInput;
+export type MutationOscDeviceAddArgs = {
+  device: OscDeviceConfig;
 };
 
 
-export type MutationOscDeviceRemoveArgs = {
+export type MutationOscDeviceDeleteArgs = {
   id: Scalars['ID'];
 };
 
 
-export type MutationOscDeviceDuplicateArgs = {
-  name: Scalars['String'];
-  original: Scalars['ID'];
-};
-
-
-export type MutationOscDeviceConfigureArgs = {
+export type MutationOscDeviceEditArgs = {
   id: Scalars['ID'];
   config: OscDeviceConfig;
-};
-
-
-export type MutationOscDictionaryCreateArgs = {
-  dictionary: OscDictionaryInput;
 };
 
 
@@ -10817,20 +10804,14 @@ export type OscDevice = {
   __typename?: 'OscDevice';
   id: Scalars['ID'];
   name: Scalars['String'];
-  dictionary: OscDictionary;
-  address: Scalars['String'];
+  host: Scalars['String'];
   port: Scalars['Int'];
 };
 
-export type OscDeviceInput = {
-  id?: Maybe<Scalars['ID']>;
-  name: Scalars['String'];
-  dictionary: Scalars['ID'];
-};
-
 export type OscDeviceConfig = {
+  id?: Maybe<Scalars['ID']>;
   name?: Maybe<Scalars['String']>;
-  address?: Maybe<Scalars['String']>;
+  host?: Maybe<Scalars['String']>;
   port?: Maybe<Scalars['Int']>;
 };
 
@@ -11259,16 +11240,18 @@ export type OscMethodValidationQuery = (
   & Pick<Query, 'oscMethodValidation'>
 );
 
-export type OscMethodsQueryVariables = Exact<{
-  dictionary?: Maybe<Scalars['ID']>;
-}>;
+export type OscMethodsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type OscMethodsQuery = (
   { __typename?: 'Query' }
-  & { oscMethods: Array<(
-    { __typename?: 'OscMethod' }
-    & Pick<OscMethod, 'id' | 'name'>
+  & { oscDictionaries: Array<(
+    { __typename?: 'OscDictionary' }
+    & Pick<OscDictionary, 'id' | 'name' | 'description'>
+    & { methods: Array<(
+      { __typename?: 'OscMethod' }
+      & Pick<OscMethod, 'id' | 'name'>
+    )> }
   )> }
 );
 
@@ -13583,50 +13566,39 @@ export type OscDeviceQuery = (
   { __typename?: 'Query' }
   & { oscDevice?: Maybe<(
     { __typename?: 'OscDevice' }
-    & Pick<OscDevice, 'id' | 'name' | 'address' | 'port'>
+    & Pick<OscDevice, 'id' | 'name' | 'host' | 'port'>
   )> }
 );
 
-export type OscDeviceConfigureMutationVariables = Exact<{
+export type OscDeviceAddMutationVariables = Exact<{
+  device: OscDeviceConfig;
+}>;
+
+
+export type OscDeviceAddMutation = (
+  { __typename?: 'Mutation' }
+  & Pick<Mutation, 'oscDeviceAdd'>
+);
+
+export type OscDeviceDeleteMutationVariables = Exact<{
+  id: Scalars['ID'];
+}>;
+
+
+export type OscDeviceDeleteMutation = (
+  { __typename?: 'Mutation' }
+  & Pick<Mutation, 'oscDeviceDelete'>
+);
+
+export type OscDeviceEditMutationVariables = Exact<{
   id: Scalars['ID'];
   config: OscDeviceConfig;
 }>;
 
 
-export type OscDeviceConfigureMutation = (
+export type OscDeviceEditMutation = (
   { __typename?: 'Mutation' }
-  & Pick<Mutation, 'oscDeviceConfigure'>
-);
-
-export type OscDeviceCreateMutationVariables = Exact<{
-  device: OscDeviceInput;
-}>;
-
-
-export type OscDeviceCreateMutation = (
-  { __typename?: 'Mutation' }
-  & Pick<Mutation, 'oscDeviceCreate'>
-);
-
-export type OscDeviceDuplicateMutationVariables = Exact<{
-  name: Scalars['String'];
-  original: Scalars['ID'];
-}>;
-
-
-export type OscDeviceDuplicateMutation = (
-  { __typename?: 'Mutation' }
-  & Pick<Mutation, 'oscDeviceDuplicate'>
-);
-
-export type OscDeviceRemoveMutationVariables = Exact<{
-  id: Scalars['ID'];
-}>;
-
-
-export type OscDeviceRemoveMutation = (
-  { __typename?: 'Mutation' }
-  & Pick<Mutation, 'oscDeviceRemove'>
+  & Pick<Mutation, 'oscDeviceEdit'>
 );
 
 export type OscDevicesSubscriptionVariables = Exact<{ [key: string]: never; }>;
@@ -13636,11 +13608,7 @@ export type OscDevicesSubscription = (
   { __typename?: 'Subscription' }
   & { oscDevices: Array<(
     { __typename?: 'OscDevice' }
-    & Pick<OscDevice, 'id' | 'name'>
-    & { dictionary: (
-      { __typename?: 'OscDictionary' }
-      & Pick<OscDictionary, 'id' | 'name'>
-    ) }
+    & Pick<OscDevice, 'id' | 'name' | 'host' | 'port'>
   )> }
 );
 
@@ -15359,10 +15327,15 @@ export function useOscMethodValidationLazyQuery(baseOptions?: ApolloReactHooks.L
 export type OscMethodValidationQueryHookResult = ReturnType<typeof useOscMethodValidationQuery>;
 export type OscMethodValidationLazyQueryHookResult = ReturnType<typeof useOscMethodValidationLazyQuery>;
 export const OscMethodsDocument = gql`
-    query OscMethods($dictionary: ID) {
-  oscMethods(dictionary: $dictionary) {
+    query OscMethods {
+  oscDictionaries {
     id
     name
+    description
+    methods {
+      id
+      name
+    }
   }
 }
     `;
@@ -17650,7 +17623,7 @@ export const OscDeviceDocument = gql`
   oscDevice(id: $id) {
     id
     name
-    address
+    host
     port
   }
 }
@@ -17663,51 +17636,40 @@ export function useOscDeviceLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHo
         }
 export type OscDeviceQueryHookResult = ReturnType<typeof useOscDeviceQuery>;
 export type OscDeviceLazyQueryHookResult = ReturnType<typeof useOscDeviceLazyQuery>;
-export const OscDeviceConfigureDocument = gql`
-    mutation OscDeviceConfigure($id: ID!, $config: OscDeviceConfig!) {
-  oscDeviceConfigure(id: $id, config: $config)
+export const OscDeviceAddDocument = gql`
+    mutation OscDeviceAdd($device: OscDeviceConfig!) {
+  oscDeviceAdd(device: $device)
 }
     `;
-export function useOscDeviceConfigureMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<OscDeviceConfigureMutation, OscDeviceConfigureMutationVariables>) {
-        return ApolloReactHooks.useMutation<OscDeviceConfigureMutation, OscDeviceConfigureMutationVariables>(OscDeviceConfigureDocument, baseOptions);
+export function useOscDeviceAddMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<OscDeviceAddMutation, OscDeviceAddMutationVariables>) {
+        return ApolloReactHooks.useMutation<OscDeviceAddMutation, OscDeviceAddMutationVariables>(OscDeviceAddDocument, baseOptions);
       }
-export type OscDeviceConfigureMutationHookResult = ReturnType<typeof useOscDeviceConfigureMutation>;
-export const OscDeviceCreateDocument = gql`
-    mutation OscDeviceCreate($device: OscDeviceInput!) {
-  oscDeviceCreate(device: $device)
+export type OscDeviceAddMutationHookResult = ReturnType<typeof useOscDeviceAddMutation>;
+export const OscDeviceDeleteDocument = gql`
+    mutation OscDeviceDelete($id: ID!) {
+  oscDeviceDelete(id: $id)
 }
     `;
-export function useOscDeviceCreateMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<OscDeviceCreateMutation, OscDeviceCreateMutationVariables>) {
-        return ApolloReactHooks.useMutation<OscDeviceCreateMutation, OscDeviceCreateMutationVariables>(OscDeviceCreateDocument, baseOptions);
+export function useOscDeviceDeleteMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<OscDeviceDeleteMutation, OscDeviceDeleteMutationVariables>) {
+        return ApolloReactHooks.useMutation<OscDeviceDeleteMutation, OscDeviceDeleteMutationVariables>(OscDeviceDeleteDocument, baseOptions);
       }
-export type OscDeviceCreateMutationHookResult = ReturnType<typeof useOscDeviceCreateMutation>;
-export const OscDeviceDuplicateDocument = gql`
-    mutation OscDeviceDuplicate($name: String!, $original: ID!) {
-  oscDeviceDuplicate(name: $name, original: $original)
+export type OscDeviceDeleteMutationHookResult = ReturnType<typeof useOscDeviceDeleteMutation>;
+export const OscDeviceEditDocument = gql`
+    mutation OscDeviceEdit($id: ID!, $config: OscDeviceConfig!) {
+  oscDeviceEdit(id: $id, config: $config)
 }
     `;
-export function useOscDeviceDuplicateMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<OscDeviceDuplicateMutation, OscDeviceDuplicateMutationVariables>) {
-        return ApolloReactHooks.useMutation<OscDeviceDuplicateMutation, OscDeviceDuplicateMutationVariables>(OscDeviceDuplicateDocument, baseOptions);
+export function useOscDeviceEditMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<OscDeviceEditMutation, OscDeviceEditMutationVariables>) {
+        return ApolloReactHooks.useMutation<OscDeviceEditMutation, OscDeviceEditMutationVariables>(OscDeviceEditDocument, baseOptions);
       }
-export type OscDeviceDuplicateMutationHookResult = ReturnType<typeof useOscDeviceDuplicateMutation>;
-export const OscDeviceRemoveDocument = gql`
-    mutation OscDeviceRemove($id: ID!) {
-  oscDeviceRemove(id: $id)
-}
-    `;
-export function useOscDeviceRemoveMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<OscDeviceRemoveMutation, OscDeviceRemoveMutationVariables>) {
-        return ApolloReactHooks.useMutation<OscDeviceRemoveMutation, OscDeviceRemoveMutationVariables>(OscDeviceRemoveDocument, baseOptions);
-      }
-export type OscDeviceRemoveMutationHookResult = ReturnType<typeof useOscDeviceRemoveMutation>;
+export type OscDeviceEditMutationHookResult = ReturnType<typeof useOscDeviceEditMutation>;
 export const OscDevicesDocument = gql`
     subscription OscDevices {
   oscDevices {
     id
     name
-    dictionary {
-      id
-      name
-    }
+    host
+    port
   }
 }
     `;

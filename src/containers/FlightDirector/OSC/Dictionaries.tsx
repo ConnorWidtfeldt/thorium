@@ -16,7 +16,7 @@ interface MethodType {
 interface DictionaryType {
   id: string;
   name: string;
-  methods: MethodType[]
+  methods: MethodType[];
 }
 
 interface DictionaryItemProps {
@@ -52,27 +52,30 @@ const DictionaryMethod: React.FC<DictionaryMethodProps> = props => {
   const [open, setOpen] = useState<boolean>(false);
 
   const styles: CustomCSSProperties = {
-    "--color": method.color || "#49cc90"
-  }
+    "--color": method.color || "#49cc90",
+  };
 
   return (
-    <div 
-      className="oscDictionaryMethod" 
-      data-state={open ? "open" : "closed"} 
+    <div
+      className="oscDictionaryMethod"
+      data-state={open ? "open" : "closed"}
       key={method.id}
       style={styles}
+    >
+      <div
+        className="oscDictionaryMethod_summary"
+        onClick={() => setOpen(!open)}
       >
-      <div className="oscDictionaryMethod_summary" onClick={() => setOpen(!open)}>
         <div className="oscDictionaryMethod_name">{method.name}</div>
         <div className="oscDictionaryMethod_path">{method.path}</div>
       </div>
       <div className="oscDictionaryMethod_details">
         {/* I like to live dangerously sometimes */}
         <div
-          className="oscDictionaryMethod_description" 
+          className="oscDictionaryMethod_description"
           dangerouslySetInnerHTML={{__html: method.description ?? ""}}
         ></div>
-        <hr/>
+        <hr />
       </div>
     </div>
   );
@@ -82,11 +85,14 @@ interface DictionaryMethodListProps {
   dictionaryId?: string;
 }
 const DictionaryMethodList: React.FC<DictionaryMethodListProps> = props => {
-  const {data: dictionaryData, loading: dictionaryLoading} = useOscDictionaryQuery({
+  const {
+    data: dictionaryData,
+    loading: dictionaryLoading,
+  } = useOscDictionaryQuery({
     variables: {
-      id: props.dictionaryId ?? ""
-    }
-  })
+      id: props.dictionaryId ?? "",
+    },
+  });
   if (dictionaryData?.oscDictionary === undefined) return null;
 
   const dictionary = dictionaryData.oscDictionary as DictionaryType;
@@ -94,12 +100,12 @@ const DictionaryMethodList: React.FC<DictionaryMethodListProps> = props => {
 
   return (
     <>
-    {dictionary.methods.map(method =>
-      <DictionaryMethod method={method}></DictionaryMethod>
-    )}
-    {dictionaryLoading && <LoadingPlaceholder/>}
+      {dictionary.methods.map(method => (
+        <DictionaryMethod method={method}></DictionaryMethod>
+      ))}
+      {dictionaryLoading && <LoadingPlaceholder />}
     </>
-  )
+  );
 };
 
 export const Dictionaries: React.FC = () => {
@@ -126,7 +132,7 @@ export const Dictionaries: React.FC = () => {
       <div className="oscDictionaries">
         <div className="oscDictionaryList">{dictionaryItems()}</div>
         <div className="oscDictionaryMethods oscCard">
-          <DictionaryMethodList dictionaryId={selectedDictionary!}/>
+          <DictionaryMethodList dictionaryId={selectedDictionary!} />
         </div>
       </div>
     </ViewContainer>
