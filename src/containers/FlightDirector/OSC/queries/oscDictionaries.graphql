@@ -1,0 +1,7 @@
+subscription OscDictionaries {
+  oscDictionaries {
+    id
+    name
+    description
+  }
+}

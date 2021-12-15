@@ -1,0 +1,6 @@
+query OscDevice($id: ID!) {
+  oscDevice(id: $id) {
+    id
+    name
+  }
+}

@@ -2,6 +2,9 @@ subscription OscDevices {
   oscDevices {
     id
     name
-    dictionary
+    dictionary {
+      id
+      name
+    }
   }
 }

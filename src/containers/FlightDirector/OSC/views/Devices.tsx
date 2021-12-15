@@ -1,73 +1,181 @@
 import React, {useCallback, useState} from "react";
 import {useNavigate} from "react-router-dom";
 import {
-  Card,
   CardBody,
   CardFooter,
   CardTitle,
   CardSubtitle,
   ButtonGroup,
   Button,
-  Col,
-  Row,
-  Container,
   Modal,
   ModalHeader,
   ModalBody,
   ModalFooter,
   ModalProps,
+  Form,
+  FormGroup,
+  Input,
+  Label,
 } from "reactstrap";
 import {
   useOscDevicesSubscription,
+  useOscDeviceLazyQuery,
+  useOscDeviceCreateMutation,
   useOscDeviceRemoveMutation,
+  useOscDeviceDuplicateMutation,
+  useOscDictionariesSubscription,
 } from "generated/graphql";
+import {CSSTransition, TransitionGroup} from "react-transition-group";
 
-// import {
-//   get
-// } from "generated/graphql";
+import {ViewContainer} from "./components";
 
-import {ViewContainer} from "./components/ViewContainer";
-
-interface DeviceProps {
+interface DeviceType {
   id: string;
   name: string;
-  dictionaryName: string;
-
-  onEdit?: (id: string) => void;
-  onCopy?: (id: string) => void;
-  onDelete?: (id: string) => void;
+  dictionary?: {
+    id: string;
+    name: string;
+    description?: string;
+  };
 }
-const Device: React.FC<DeviceProps> = props => (
-  <Card className="oscDeviceItem">
+
+interface DeviceItemProps {
+  device: DeviceType;
+  style: React.CSSProperties;
+
+  onEdit?: () => void;
+  onCopy?: (id: string) => void;
+  onDelete?: () => void;
+}
+const DeviceItem: React.FC<DeviceItemProps> = props => (
+  <div className="oscDeviceItem oscCard" style={props.style}>
     <CardBody>
-      <CardTitle tag="h4">{props.name}</CardTitle>
+      <CardTitle tag="h4">{props.device.name}</CardTitle>
       <CardSubtitle className="mb-2 text-muted" tag="h5">
-        {props.dictionaryName}
+        {props.device.dictionary?.name}
       </CardSubtitle>
     </CardBody>
     <CardFooter>
       <ButtonGroup className="oscDeviceActions">
-        <Button color="success" onClick={() => props.onEdit?.(props.id)}>
+        <Button color="success" onClick={props.onEdit}>
           Edit
         </Button>
-        <Button color="info" onClick={() => props.onCopy?.(props.id)}>
+        <Button color="info" onClick={() => props.onCopy?.(props.device.id)}>
           Copy
         </Button>
-        <Button color="danger" onClick={() => props.onDelete?.(props.id)}>
+        <Button color="danger" onClick={props.onDelete}>
           Delete
         </Button>
       </ButtonGroup>
     </CardFooter>
-  </Card>
+  </div>
 );
 
 interface DeleteModalProps extends ModalProps {
-  onConfirm: () => void;
   onCancel: () => void;
+  onConfirm: () => void;
 }
-const DeleteModal: React.FC<DeleteModalProps> = ({
-  onConfirm,
+
+interface AddResult {
+  name: string;
+  dictionaryId: string;
+}
+interface AddModalProps extends ModalProps {
+  onCancel: () => void;
+  onSave: (result: AddResult) => void;
+  copy?: string;
+  title: string;
+}
+const AddModal: React.FC<AddModalProps> = ({
   onCancel,
+  onSave,
+  copy,
+  title,
+  ...modalProps
+}) => {
+  const isCopying = copy !== undefined;
+
+  const [
+    getDevice,
+    {data: copyCeviceData, loading: copyDeviceLoading},
+  ] = useOscDeviceLazyQuery();
+  const copyDevice = copyCeviceData?.oscDevice;
+
+  const {
+    data: dictionariesData,
+    loading: dictionariesLoading,
+  } = useOscDictionariesSubscription();
+  const dictionaries = dictionariesData?.oscDictionaries;
+
+  const [name, setName] = useState<string | undefined>();
+  const [dictionaryId, setDictionaryId] = useState<string | undefined>();
+
+  if (isCopying) {
+    // lazy request the parent device that is being copied
+    if (copyCeviceData == null && !copyDeviceLoading) {
+      getDevice({variables: {id: copy!}});
+    }
+    // use original device name with copy appended if one isn't set
+    if (!name && copyDevice?.name) {
+      setName(copyDevice.name + " Copy");
+    }
+  } else {
+    if (!dictionariesLoading && !dictionaryId) {
+      setDictionaryId(dictionaries?.[0].id);
+    }
+  }
+
+  const canSave = name?.length && dictionaryId;
+  const handleSave = () => {
+    onSave({name: name!, dictionaryId: dictionaryId!});
+  };
+
+  return (
+    <Modal {...modalProps}>
+      <ModalHeader>{title}</ModalHeader>
+
+      <ModalBody>
+        <Form>
+          <FormGroup>
+            <Label for="name">Name</Label>
+            <Input
+              name="name"
+              type="text"
+              value={name ?? ""}
+              onChange={({target}) => setName(target.value)}
+            />
+          </FormGroup>
+          <FormGroup>
+            <Label for="dictionary">Dictionary</Label>
+            <Input
+              name="dictionary"
+              type="select"
+              disabled={isCopying}
+              onChange={({target}) => setDictionaryId(target.value)}
+            >
+              {dictionaries?.map(dictionary => (
+                <option value={dictionary.id!} key={dictionary.id}>
+                  {dictionary.name}
+                </option>
+              ))}
+            </Input>
+          </FormGroup>
+        </Form>
+      </ModalBody>
+
+      <ModalFooter>
+        <Button onClick={onCancel}>Cancel</Button>
+        <Button color="success" disabled={!canSave} onClick={handleSave}>
+          Save
+        </Button>
+      </ModalFooter>
+    </Modal>
+  );
+};
+
+const DeleteModal: React.FC<DeleteModalProps> = ({
+  onCancel,
+  onConfirm,
   ...modalProps
 }) => (
   <Modal {...modalProps}>
@@ -85,70 +193,106 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
 export const Devices: React.FC = () => {
   const navigate = useNavigate();
 
-  const devices =
-    (useOscDevicesSubscription().data?.oscDevices as DeviceProps[]) || [];
-  const [remove] = useOscDeviceRemoveMutation();
+  const {
+    data: devicesData,
+    loading: devicesLoading,
+  } = useOscDevicesSubscription();
 
-  const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+  const devices = (devicesData?.oscDevices as DeviceType[]) || [];
+  const [removeDevice] = useOscDeviceRemoveMutation();
+  const [createDevice] = useOscDeviceCreateMutation();
+  const [duplicateDevice] = useOscDeviceDuplicateMutation();
 
-  const handleEdit = useCallback(
-    (deviceId: string) => {
-      navigate(`${deviceId}/edit`);
-    },
-    [navigate],
-  );
+  const [deleteDevice, setDeleteDevice] = useState<string | null>(null);
+  const [copyDevice, setCopyDevice] = useState<string | null>(null);
 
-  const handleCopy = useCallback((deviceId: string) => {
-    console.log("COPYING DEVICE!", deviceId);
-  }, []);
-
-  const handleDelete = useCallback((deviceId: string) => {
-    setConfirmDelete(deviceId);
-  }, []);
-  const deleteDevice = (id: string) => {
-    remove({variables: {id}});
-  };
+  const [isAddingDevice, setIsAddingDevice] = useState<boolean>(false);
 
   const actions = [
     {
       text: "Add Device",
       color: "success",
-      onClick: () => navigate("add"),
+      onClick: () => setIsAddingDevice(true),
     },
   ];
+
+  const deviceItems = () => {
+    return devices.map((device, index) => (
+      <CSSTransition
+        key={device.id}
+        timeout={300 + index * 100}
+        classNames="oscListItem"
+      >
+        <DeviceItem
+          device={device}
+          style={{transitionDelay: `${index * 100}ms`}}
+          onEdit={() => navigate(`${device.id}/edit`)}
+          onCopy={() => setCopyDevice(device.id)}
+          onDelete={() => setDeleteDevice(device.id)}
+        />
+      </CSSTransition>
+    ));
+  };
 
   return (
     <>
       <ViewContainer title="Devices" actions={actions}>
-        <Container>
-          <Row mx="0">
-            {devices.map(device => (
-              <Col md="4" className="px-1 py-1" key={device.id}>
-                <Device
-                  {...device}
-                  onEdit={handleEdit}
-                  onCopy={handleCopy}
-                  onDelete={handleDelete}
-                />
-              </Col>
-            ))}
-          </Row>
+        <TransitionGroup className="oscDevices">
+          {deviceItems()}
+        </TransitionGroup>
 
-          {devices.length > 0 || (
-            <h3 className="w-100 text-center my-4">
-              No devices are configured
-            </h3>
-          )}
-        </Container>
+        {devicesLoading || devices.length > 0 || (
+          <h3 className="w-100 text-center my-4">No devices are configured</h3>
+        )}
       </ViewContainer>
-      <DeleteModal
-        isOpen={confirmDelete !== null}
-        onConfirm={() => {
-          confirmDelete && deleteDevice(confirmDelete);
-          setConfirmDelete(null);
-        }}
+
+      <AddModal
+        title="Add New Device"
+        isOpen={isAddingDevice}
         onCancel={() => {
-          setConfirmDelete(null);
+          setIsAddingDevice(false);
+        }}
+        onSave={newDevice => {
+          createDevice({
+            variables: {
+              device: {
+                name: newDevice.name,
+                dictionary: newDevice.dictionaryId,
+              },
+            },
+          });
+          setIsAddingDevice(false);
+        }}
+      />
+      <AddModal
+        title="Copy Existing Device"
+        isOpen={copyDevice !== null}
+        copy={copyDevice ?? undefined}
+        onCancel={() => {
+          setCopyDevice(null);
+        }}
+        onSave={newDevice => {
+          duplicateDevice({
+            variables: {
+              name: newDevice.name,
+              original: copyDevice!,
+            },
+          });
+          setCopyDevice(null);
+        }}
+      />
+      <DeleteModal
+        isOpen={deleteDevice !== null}
+        onCancel={() => {
+          setDeleteDevice(null);
+        }}
+        onConfirm={() => {
+          removeDevice({
+            variables: {
+              id: deleteDevice!,
+            },
+          });
+          setDeleteDevice(null);
         }}
       />
     </>

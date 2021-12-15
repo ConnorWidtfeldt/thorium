@@ -53,15 +53,17 @@ const FlightDirectorContainer: React.FC = () => {
       <div className="config-container">
         {!isCore && <SideNav />}
 
-        <Routes>
-          <Route path="/" element={<Welcome />} />
-          <Route path="flight/:flightId/core" element={<FlightDirector />} />
-          <Route path="flight" element={<FlightConfig />} />
-          <Route path="flight/:flightId" element={<ClientsLobby />} />
-          <Route path="config/*" element={<Config />} />
-          <Route path="releases" element={<Releases />} />
-          <Route path="*" element={<NoMatch />} />
-        </Routes>
+        <div className="config-body">
+          <Routes>
+            <Route path="/" element={<Welcome />} />
+            <Route path="flight/:flightId/core" element={<FlightDirector />} />
+            <Route path="flight" element={<FlightConfig />} />
+            <Route path="flight/:flightId" element={<ClientsLobby />} />
+            <Route path="config/*" element={<Config />} />
+            <Route path="releases" element={<Releases />} />
+            <Route path="*" element={<NoMatch />} />
+          </Routes>
+        </div>
       </div>
     </TrainingContextProvider>
   );
