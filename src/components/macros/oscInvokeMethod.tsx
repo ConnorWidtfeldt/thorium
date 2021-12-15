@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useRef} from "react";
+import React, {useState, useEffect} from "react";
 import {MacroConfigProps} from "helpers/genericTypes";
 import {Input, Label, Button} from "reactstrap";
 import {FaCheck, FaTimes} from "react-icons/fa";
